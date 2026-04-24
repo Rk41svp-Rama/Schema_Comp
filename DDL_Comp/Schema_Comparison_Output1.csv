@@ -1,0 +1,129 @@
+Table Name,Attribute in Schema 1,Attribute in Schema 2,Attribute Mapping Notes
+CUSTOMER -> Customer,CUSTOMER (char(3)),CustomerId (uniqueidentifier),Primary key mapping: Source uses 3-char code; Target uses GUID. Requires transformation logic.
+CUSTOMER -> Customer,CLIENT_GROUP (char(1)),N/A,Source attribute not present in target schema. May need to map to CustomerTypeId or separate dimension.
+CUSTOMER -> Customer,CLIENT_GROUP_DESCRIPTION (char(45)),Description (varchar(255)),Descriptive field mapping with expanded length in target (45 -> 255 chars).
+CUSTOMER -> Customer,CUSTOMER_NAME (char(45)),CustomerName (nvarchar(128)),Name field mapping: Source fixed char(45); Target variable nvarchar(128) with Unicode support.
+CUSTOMER -> Customer,CUSTOMER_NAME2 (char(45)),N/A,Secondary name field in source not present in target. May require concatenation or separate storage.
+CUSTOMER -> Customer,CUSTOMER_ADDR (char(45)),N/A,Address field in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,CUSTOMER_ADDR2 (char(45)),N/A,Address line 2 in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,CUSTOMER_CITY (char(25)),N/A,City field in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,CUSTOMER_STATE (char(2)),N/A,State field in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,CUSTOMER_ZIP (char(9)),N/A,ZIP code in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,CHANGED (datetime),UpdatedDate (datetime2(7)),Audit timestamp mapping: Source uses datetime; Target uses datetime2 with precision.
+CUSTOMER -> Customer,CHANGED_BY (char(12)),UpdatedBy (uniqueidentifier),Audit user mapping: Source uses 12-char username; Target uses GUID reference.
+CUSTOMER -> Customer,SSN (char(9)),N/A,Social Security Number in source not directly mapped in target Customer table.
+CUSTOMER -> Customer,FEDERAL_ID (char(9)),TIN (varchar(50)),Federal tax ID mapping: Source char(9); Target varchar(50) for flexibility.
+CUSTOMER -> Customer,STATE_ID (char(20)),N/A,State identification field in source not present in target schema.
+CUSTOMER -> Customer,ACCOUNT_CAREOF (char(45)),N/A,Care of address field in source. Target uses BusinessPartyId reference.
+CUSTOMER -> Customer,ACCOUNT_ADDR1 (char(45)),N/A,Account address in source. Target uses BusinessPartyId reference to separate address entity.
+CUSTOMER -> Customer,ACCOUNT_ADDR2 (char(45)),N/A,Account address line 2 in source. Target uses BusinessPartyId reference.
+CUSTOMER -> Customer,ACCOUNT_ADDR3 (char(45)),N/A,Account address line 3 in source. Target uses BusinessPartyId reference.
+CUSTOMER -> Customer,ACCOUNT_ADDR4 (char(45)),N/A,Account address line 4 in source. Target uses BusinessPartyId reference.
+CUSTOMER -> Customer,CLIENT_CAREOF (char(45)),N/A,Client care of field in source. Target uses BusinessPartyId reference.
+CUSTOMER -> Customer,N/A,CustomerTypeId (uniqueidentifier),Target has customer type reference not present in source. May map from CLIENT_GROUP.
+CUSTOMER -> Customer,N/A,OfficeCode (nvarchar(25)),Target has office code field not present in source schema.
+CUSTOMER -> Customer,N/A,IsActive (bit),Target has active status flag. Source may derive from presence/absence of record.
+CUSTOMER -> Customer,N/A,CreatedBy (uniqueidentifier),Target has creation audit field not present in source.
+CUSTOMER -> Customer,N/A,CreatedDate (datetime2(7)),Target has creation timestamp not present in source.
+CUSTOMER -> Customer,N/A,CustomerNumber (varchar(50)),Target has customer number field that may map to source CUSTOMER key.
+CUSTOMER -> Customer,N/A,TCCNumber (varchar(50)),Target has TCC number field not present in source schema.
+CUSTOMER -> Customer,N/A,UseMailingAddressAsPrimary (bit),Target has mailing address preference flag not in source.
+CUSTOMER -> Customer,N/A,BusinessPartyId (uniqueidentifier),Target uses normalized party reference for address/contact data.
+CUSTOMER -> Customer,N/A,DeactivatedDate (datetime),Target has deactivation timestamp not present in source.
+CUSTOMER -> Customer,N/A,DeactivatedBy (uniqueidentifier),Target has deactivation user audit not present in source.
+CUSTOMER -> Customer,N/A,IsZenithCustomer (bit),Target has Zenith customer flag for migration/integration tracking.
+CUSTOMER_SECURITY -> N/A,USER_NAME (char(12)),N/A,Source security table has no direct equivalent in target schema. May map to separate security/authorization system.
+CUSTOMER_SECURITY -> N/A,CUSTOMER (char(3)),N/A,Customer reference in source security table. Target likely uses separate authorization framework.
+CUSTOMER_SECURITY -> N/A,CURRENT_FLAG (char(1)),N/A,Current status flag in source security. Target may use IsActive in separate security tables.
+CUSTOMER_SECURITY -> N/A,EIN_CURRENT_FLAG (char(1)),N/A,EIN current flag in source security not present in target schema.
+DBFILE -> N/A,CUSTOMER (char(3)),N/A,Source file management table has no direct equivalent in target schema.
+DBFILE -> N/A,CLIENT (char(4)),N/A,Client reference in source file table not present in target.
+DBFILE -> N/A,DBFILE_RESOURCE (char(20)),N/A,File resource identifier in source not mapped to target.
+DBFILE -> N/A,DBFILE_PATH (char(100)),N/A,File path in source not present in target schema.
+DBFILE -> N/A,DBFILE_NAME (char(100)),N/A,File name in source not mapped to target.
+DBFILE -> N/A,VERSION (int),N/A,Version control in source file table not present in target.
+DBFILE -> N/A,DBFILE_ID (int),N/A,File identifier in source not mapped to target.
+DBFILE -> N/A,DBFILE_ENCODING (char(20)),N/A,File encoding in source not present in target schema.
+DBFILE -> N/A,DESCRIPTION (char(45)),N/A,File description in source not mapped to target.
+DBFILE -> N/A,KILOBYTES (int),N/A,File size in source not present in target schema.
+DBFILE -> N/A,CREATED (datetime),N/A,File creation timestamp in source not mapped to target.
+DBFILE -> N/A,CREATED_BY (char(31)),N/A,File creator in source not present in target schema.
+DBFILE_DETAIL -> N/A,CUSTOMER (char(3)),N/A,Source file detail table has no direct equivalent in target schema.
+DBFILE_DETAIL -> N/A,DBFILE_ID (int),N/A,File ID reference in source detail table not mapped to target.
+DBFILE_DETAIL -> N/A,DBFILE_LINE (int),N/A,Line number in source file detail not present in target.
+DBFILE_DETAIL -> N/A,DBFILE_DATA (char(1024)),N/A,File data content in source not mapped to target schema.
+DOCUMENT_ID -> N/A,CUSTOMER (char(3)),N/A,Source document counter table has no direct equivalent in target.
+DOCUMENT_ID -> N/A,DOCUMENT_COUNTER (int),N/A,Document counter in source not present in target schema.
+DOCUMENT_ID -> N/A,BANK_REC_COUNTER (int),N/A,Bank reconciliation counter in source not mapped to target.
+N/A -> Enterprise,N/A,Id (uniqueidentifier),Target Enterprise table has no direct equivalent in source schema. New hierarchy level.
+N/A -> Enterprise,N/A,EnterpriseNumber (varchar(50)),Enterprise number in target not present in source schema.
+N/A -> Enterprise,N/A,CustomerId (uniqueidentifier),Enterprise-Customer relationship in target not in source.
+N/A -> Enterprise,N/A,EnterpriseName (nvarchar(130)),Enterprise name in target not present in source schema.
+N/A -> Enterprise,N/A,Description (nvarchar(256)),Enterprise description in target not mapped from source.
+N/A -> Enterprise,N/A,IsActive (bit),Enterprise active status in target not in source.
+N/A -> Enterprise,N/A,CreatedBy (uniqueidentifier),Enterprise creation audit in target not present in source.
+N/A -> Enterprise,N/A,CreatedDate (datetime),Enterprise creation timestamp in target not in source.
+N/A -> Enterprise,N/A,ModifiedBy (uniqueidentifier),Enterprise modification audit in target not present in source.
+N/A -> Enterprise,N/A,ModifiedDate (datetime),Enterprise modification timestamp in target not in source.
+N/A -> Enterprise,N/A,DeactivatedDate (datetime),Enterprise deactivation date in target not in source.
+N/A -> Enterprise,N/A,DeactivatedBy (uniqueidentifier),Enterprise deactivation user in target not present in source.
+N/A -> Enterprise,N/A,IsCascadeDeactivation (bit),Cascade deactivation flag in target not in source schema.
+N/A -> Entity,N/A,Id (uniqueidentifier),Target Entity table has no direct equivalent in source schema. New entity hierarchy.
+N/A -> Entity,N/A,EntityNumber (varchar(50)),Entity number in target not present in source schema.
+N/A -> Entity,N/A,EnterpriseId (uniqueidentifier),Entity-Enterprise relationship in target not in source.
+N/A -> Entity,N/A,CustomerId (uniqueidentifier),Entity-Customer relationship in target not in source.
+N/A -> Entity,N/A,EntityName (nvarchar(130)),Entity name in target not present in source schema.
+N/A -> Entity,N/A,CashOrAccuralBasisIndicator (varchar(10)),Accounting basis indicator in target not in source.
+N/A -> Entity,N/A,IsActive (bit),Entity active status in target not in source.
+N/A -> Entity,N/A,CreatedBy (uniqueidentifier),Entity creation audit in target not present in source.
+N/A -> Entity,N/A,CreatedDate (datetime),Entity creation timestamp in target not in source.
+N/A -> Entity,N/A,ModifiedBy (uniqueidentifier),Entity modification audit in target not present in source.
+N/A -> Entity,N/A,ModifiedDate (datetime),Entity modification timestamp in target not in source.
+N/A -> Entity,N/A,EntityAddress (nvarchar(255)),Entity address in target not present in source schema.
+N/A -> Entity,N/A,PreferredCurrencyId (uniqueidentifier),Preferred currency reference in target not in source.
+N/A -> Entity,N/A,EIN (varchar(20)),Employer ID in target not directly mapped from source.
+N/A -> Entity,N/A,UseMailingAddressAsPrimary (bit),Mailing address preference in target not in source.
+N/A -> Entity,N/A,BusinessPartyId (uniqueidentifier),Business party reference in target not in source.
+N/A -> Entity,N/A,ChartOfAccountsNameId (uniqueidentifier),Chart of accounts reference in target not in source.
+N/A -> Entity,N/A,EntityTypeId (uniqueidentifier),Entity type reference in target not present in source.
+N/A -> Entity,N/A,CurrentFiscalYear (int),Current fiscal year in target not in source schema.
+N/A -> Entity,N/A,CurrentOpenPeriod (int),Current open period in target not in source.
+N/A -> Entity,N/A,InceptionFicaslYear (int),Inception fiscal year in target not present in source.
+N/A -> Entity,N/A,InceptionFiscalPeriod (int),Inception fiscal period in target not in source.
+N/A -> Entity,N/A,DeactivatedDate (datetime),Entity deactivation date in target not in source.
+N/A -> Entity,N/A,DeactivatedBY (uniqueidentifier),Entity deactivation user in target not present in source.
+N/A -> Entity,N/A,FinancialInstitutionId (uniqueidentifier),Financial institution reference in target not in source.
+N/A -> Entity,N/A,DocumentId (uniqueidentifier),Document reference in target not present in source schema.
+N/A -> Entity,N/A,SIN (varchar(20)),Social Insurance Number in target not in source.
+N/A -> Entity,N/A,SSN (varchar(20)),Social Security Number in target Entity table (source has in CUSTOMER).
+N/A -> Entity,N/A,Note (varchar(255)),Notes field in target not present in source schema.
+N/A -> Entity,N/A,CalendarPatternNameId (uniqueidentifier),Calendar pattern reference in target not in source.
+N/A -> Entity,N/A,EntityShortName (varchar(50)),Entity short name in target not present in source.
+N/A -> Entity,N/A,IsCascadeDeactivation (bit),Cascade deactivation flag in target not in source.
+N/A -> EntityHistory,N/A,HistoryId (uniqueidentifier),Target audit history table has no equivalent in source schema.
+N/A -> EntityHistory,N/A,EntityId (uniqueidentifier),Entity reference in history table not in source.
+N/A -> EntityHistory,N/A,FieldName (nvarchar(100)),Field name tracking in target history not in source.
+N/A -> EntityHistory,N/A,OldValue (nvarchar(max)),Old value tracking in target not present in source.
+N/A -> EntityHistory,N/A,NewValue (nvarchar(max)),New value tracking in target not in source schema.
+N/A -> EntityHistory,N/A,ChangeType (nvarchar(10)),Change type classification in target not in source.
+N/A -> EntityHistory,N/A,ChangedBy (uniqueidentifier),Change user audit in target not present in source.
+N/A -> EntityHistory,N/A,ChangedDate (datetime2(7)),Change timestamp in target not in source schema.
+N/A -> EntityHistory,N/A,ChangeReason (nvarchar(255)),Change reason tracking in target not in source.
+N/A -> EntityHistory,N/A,TransactionId (uniqueidentifier),Transaction reference in target history not in source.
+N/A -> EntityType,N/A,EntityTypeId (uniqueidentifier),Target entity type table has no equivalent in source schema.
+N/A -> EntityType,N/A,Description (nvarchar(255)),Entity type description in target not in source.
+N/A -> EntityType,N/A,CreatedBy (uniqueidentifier),Entity type creation audit in target not present in source.
+N/A -> EntityType,N/A,CreatedDate (datetime2(7)),Entity type creation timestamp in target not in source.
+N/A -> EntityType,N/A,UpdatedBy (uniqueidentifier),Entity type update audit in target not in source.
+N/A -> EntityType,N/A,UpdatedDate (datetime2(7)),Entity type update timestamp in target not in source.
+N/A -> EntityType,N/A,EntityIcon (nvarchar(50)),Entity icon reference in target not present in source.
+N/A -> EntityType,N/A,IsActive (bit),Entity type active status in target not in source.
+N/A -> EntityType,N/A,TypeCode (nvarchar(50)),Type code in target not present in source schema.
+N/A -> EntityType,N/A,TypeValue (nvarchar(50)),Type value in target not in source schema.
+N/A -> EntityGroupMapping,N/A,EntityId (uniqueidentifier),Target entity group mapping has no equivalent in source schema.
+N/A -> EntityGroupMapping,N/A,EntityGroupId (uniqueidentifier),Entity group reference in target not in source.
+N/A -> EntityGroupMapping,N/A,IsActive (bit),Group mapping active status in target not in source.
+N/A -> EntityGroupMapping,N/A,CreatedBy (uniqueidentifier),Group mapping creation audit in target not present in source.
+N/A -> EntityGroupMapping,N/A,CreatedDate (datetime),Group mapping creation timestamp in target not in source.
+N/A -> EntityGroupMapping,N/A,ModifiedBy (uniqueidentifier),Group mapping modification audit in target not in source.
+N/A -> EntityGroupMapping,N/A,ModifiedDate (datetime),Group mapping modification timestamp in target not in source.
