@@ -1,0 +1,110 @@
+Table Name,Attribute in Schema 1,Attribute in Schema 2,Attribute Mapping Notes
+CUSTOMER,CUSTOMER,CustomerId,Primary identifier - Source uses char(3) CUSTOMER code; Target uses uniqueidentifier CustomerId. Requires transformation from legacy 3-char code to GUID.
+CUSTOMER,CLIENT_GROUP,N/A,Source-only attribute - char(1) client group classification. No direct equivalent in Target schema. May map to CustomerTypeId conceptually.
+CUSTOMER,CLIENT_GROUP_DESCRIPTION,Description,Descriptive field - Source char(45) CLIENT_GROUP_DESCRIPTION maps to Target varchar(255) Description. Target allows longer descriptions.
+CUSTOMER,CUSTOMER_NAME,CustomerName,Entity name field - Source char(45) CUSTOMER_NAME maps to Target nvarchar(128) CustomerName. Target uses Unicode and different length constraint.
+CUSTOMER,CUSTOMER_NAME2,N/A,Source-only attribute - char(45) secondary name field. No direct equivalent in Target. May need concatenation logic or storage in extended attributes.
+CUSTOMER,CUSTOMER_ADDR,N/A,Source-only attribute - char(45) address line 1. Target schema uses BusinessPartyId reference to separate address entity rather than inline address fields.
+CUSTOMER,CUSTOMER_ADDR2,N/A,Source-only attribute - char(45) address line 2. Target uses BusinessPartyId for address management.
+CUSTOMER,CUSTOMER_CITY,N/A,Source-only attribute - char(25) city field. Target uses BusinessPartyId reference for address components.
+CUSTOMER,CUSTOMER_STATE,N/A,Source-only attribute - char(2) state code. Target uses BusinessPartyId reference for address components.
+CUSTOMER,CUSTOMER_ZIP,N/A,Source-only attribute - char(9) ZIP code. Target uses BusinessPartyId reference for address components.
+CUSTOMER,CHANGED,ModifiedDate,Audit timestamp - Source datetime CHANGED maps to Target datetime2(7) UpdatedDate. Target uses higher precision datetime2 type.
+CUSTOMER,CHANGED_BY,UpdatedBy,Audit user field - Source char(12) CHANGED_BY maps to Target uniqueidentifier UpdatedBy. Target uses GUID for user reference instead of username string.
+CUSTOMER,SSN,N/A,Source-only PII attribute - char(9) Social Security Number. No direct equivalent in Target Customer table. Target Entity table has SSN field.
+CUSTOMER,FEDERAL_ID,TIN,Tax identifier - Source char(9) FEDERAL_ID maps to Target varchar(50) TIN (Tax Identification Number). Target allows longer format and different naming convention.
+CUSTOMER,STATE_ID,N/A,Source-only attribute - char(20) state identification number. No direct equivalent in Target schema.
+CUSTOMER,ACCOUNT_CAREOF,N/A,Source-only attribute - char(45) account care-of address. Target uses BusinessPartyId for address management.
+CUSTOMER,ACCOUNT_ADDR1,N/A,Source-only attribute - char(45) account address line 1. Target uses BusinessPartyId reference.
+CUSTOMER,ACCOUNT_ADDR2,N/A,Source-only attribute - char(45) account address line 2. Target uses BusinessPartyId reference.
+CUSTOMER,ACCOUNT_ADDR3,N/A,Source-only attribute - char(45) account address line 3. Target uses BusinessPartyId reference.
+CUSTOMER,ACCOUNT_ADDR4,N/A,Source-only attribute - char(45) account address line 4. Target uses BusinessPartyId reference.
+CUSTOMER,CLIENT_CAREOF,N/A,Source-only attribute - char(45) client care-of field. Target uses BusinessPartyId reference.
+CUSTOMER,N/A,CustomerNumber,Target-only attribute - varchar(50) customer number. New field in Target for customer numbering system.
+CUSTOMER,N/A,CustomerTypeId,Target-only attribute - uniqueidentifier reference to customer type classification. Replaces Source CLIENT_GROUP with normalized reference.
+CUSTOMER,N/A,OfficeCode,Target-only attribute - nvarchar(25) office code for organizational hierarchy. New field in Target schema.
+CUSTOMER,N/A,IsActive,Target-only attribute - bit flag for active status. Source lacks explicit active/inactive flag.
+CUSTOMER,N/A,CreatedBy,Target-only audit attribute - uniqueidentifier for record creator. Source lacks creation audit trail.
+CUSTOMER,N/A,CreatedDate,Target-only audit attribute - datetime2(7) for record creation timestamp. Source lacks creation timestamp.
+CUSTOMER,N/A,TCCNumber,Target-only attribute - varchar(50) TCC number. New business identifier in Target schema.
+CUSTOMER,N/A,UseMailingAddressAsPrimary,Target-only attribute - bit flag for address preference. New field for address management logic.
+CUSTOMER,N/A,BusinessPartyId,Target-only attribute - uniqueidentifier reference to BusinessParty entity for normalized address/contact management. Architectural change from inline to referenced data.
+CUSTOMER,N/A,DeactivatedDate,Target-only audit attribute - datetime for deactivation timestamp. Enhanced audit capability in Target.
+CUSTOMER,N/A,DeactivatedBy,Target-only audit attribute - uniqueidentifier for user who deactivated record. Enhanced audit capability in Target.
+CUSTOMER,N/A,IsZenithCustomer,Target-only attribute - bit flag indicating Zenith system customer. New business classification in Target.
+CUSTOMER_SECURITY,USER_NAME,N/A,Source-only attribute - char(12) username for security access. Target schema does not have equivalent security table in provided DDL.
+CUSTOMER_SECURITY,CUSTOMER,N/A,Source-only attribute - char(3) customer reference for security mapping. Target schema handles security differently.
+CUSTOMER_SECURITY,CURRENT_FLAG,N/A,Source-only attribute - char(1) flag for current access status. No equivalent in Target schema.
+CUSTOMER_SECURITY,EIN_CURRENT_FLAG,N/A,Source-only attribute - char(1) flag for EIN access status. No equivalent in Target schema.
+DBFILE,CUSTOMER,CustomerId,Foreign key reference - Source char(3) CUSTOMER maps to Target uniqueidentifier CustomerId. Requires transformation from legacy code to GUID.
+DBFILE,CLIENT,EntityNumber,Client/Entity identifier - Source char(4) CLIENT conceptually maps to Target varchar(50) EntityNumber. Different naming convention and data type.
+DBFILE,DBFILE_RESOURCE,N/A,Source-only attribute - char(20) resource identifier. No direct equivalent in Target schema.
+DBFILE,DBFILE_PATH,N/A,Source-only attribute - char(100) file path. Target may use DocumentId reference instead of inline path storage.
+DBFILE,DBFILE_NAME,N/A,Source-only attribute - char(100) file name. Target may use DocumentId reference.
+DBFILE,VERSION,N/A,Source-only attribute - int version number. No direct equivalent in Target schema.
+DBFILE,DBFILE_ID,DocumentId,Document identifier - Source int DBFILE_ID conceptually maps to Target uniqueidentifier DocumentId. Data type change from int to GUID.
+DBFILE,DBFILE_ENCODING,N/A,Source-only attribute - char(20) encoding specification. No direct equivalent in Target schema.
+DBFILE,DESCRIPTION,Description,Descriptive field - Source char(45) DESCRIPTION maps to Target varchar(255) or nvarchar(256) Description fields. Target allows longer descriptions.
+DBFILE,KILOBYTES,N/A,Source-only attribute - int file size in kilobytes. No direct equivalent in Target schema.
+DBFILE,CREATED,CreatedDate,Audit timestamp - Source datetime CREATED maps to Target datetime or datetime2(7) CreatedDate. Target may use higher precision.
+DBFILE,CREATED_BY,CreatedBy,Audit user field - Source char(31) CREATED_BY maps to Target uniqueidentifier CreatedBy. Target uses GUID for user reference.
+DBFILE_DETAIL,CUSTOMER,CustomerId,Foreign key reference - Source char(3) CUSTOMER maps to Target uniqueidentifier CustomerId. Requires transformation.
+DBFILE_DETAIL,DBFILE_ID,DocumentId,Document identifier reference - Source int DBFILE_ID conceptually maps to Target uniqueidentifier DocumentId. Data type transformation required.
+DBFILE_DETAIL,DBFILE_LINE,N/A,Source-only attribute - int line number for file content sequencing. No direct equivalent in Target schema.
+DBFILE_DETAIL,DBFILE_DATA,N/A,Source-only attribute - char(1024) file content data. Target may store document content differently.
+DOCUMENT_ID,CUSTOMER,CustomerId,Foreign key reference - Source char(3) CUSTOMER maps to Target uniqueidentifier CustomerId. Requires transformation.
+DOCUMENT_ID,DOCUMENT_COUNTER,N/A,Source-only attribute - int counter for document sequencing. No direct equivalent in Target schema.
+DOCUMENT_ID,BANK_REC_COUNTER,N/A,Source-only attribute - int counter for bank reconciliation. No direct equivalent in Target schema.
+N/A,N/A,Enterprise.Id,Target-only table/attribute - uniqueidentifier primary key for Enterprise entity. New hierarchical level in Target schema above Customer.
+N/A,N/A,Enterprise.EnterpriseNumber,Target-only attribute - varchar(50) enterprise number. New business identifier in Target schema hierarchy.
+N/A,N/A,Enterprise.CustomerId,Target-only attribute - uniqueidentifier reference linking Enterprise to Customer. New relationship in Target schema.
+N/A,N/A,Enterprise.EnterpriseName,Target-only attribute - nvarchar(130) enterprise name. New entity name field in Target hierarchy.
+N/A,N/A,Enterprise.IsActive,Target-only attribute - bit active status flag. New field for enterprise lifecycle management.
+N/A,N/A,Enterprise.IsCascadeDeactivation,Target-only attribute - bit flag for cascade deactivation behavior. New business rule support in Target.
+N/A,N/A,Entity.Id,Target-only table/attribute - uniqueidentifier primary key for Entity. New normalized entity structure in Target.
+N/A,N/A,Entity.EntityNumber,Target-only attribute - varchar(50) entity number. New business identifier replacing Source CLIENT concept.
+N/A,N/A,Entity.EnterpriseId,Target-only attribute - uniqueidentifier reference to Enterprise. New hierarchical relationship in Target.
+N/A,N/A,Entity.EntityName,Target-only attribute - nvarchar(130) entity name. New entity naming field.
+N/A,N/A,Entity.CashOrAccuralBasisIndicator,Target-only attribute - varchar(10) accounting basis indicator. New accounting classification in Target.
+N/A,N/A,Entity.EntityAddress,Target-only attribute - nvarchar(255) entity address. Consolidated address field in Target.
+N/A,N/A,Entity.PreferredCurrencyId,Target-only attribute - uniqueidentifier currency reference. New multi-currency support in Target.
+N/A,N/A,Entity.EIN,Target-only attribute - varchar(20) Employer Identification Number. Tax identifier in Entity table.
+N/A,N/A,Entity.ChartOfAccountsNameId,Target-only attribute - uniqueidentifier COA reference. New accounting structure reference in Target.
+N/A,N/A,Entity.EntityTypeId,Target-only attribute - uniqueidentifier entity type reference. New entity classification in Target.
+N/A,N/A,Entity.CurrentFiscalYear,Target-only attribute - int current fiscal year. New fiscal period tracking in Target.
+N/A,N/A,Entity.CurrentOpenPeriod,Target-only attribute - int current open period. New period management in Target.
+N/A,N/A,Entity.InceptionFicaslYear,Target-only attribute - int inception fiscal year. New historical tracking in Target.
+N/A,N/A,Entity.InceptionFiscalPeriod,Target-only attribute - int inception fiscal period. New historical tracking in Target.
+N/A,N/A,Entity.FinancialInstitutionId,Target-only attribute - uniqueidentifier financial institution reference. New banking relationship in Target.
+N/A,N/A,Entity.SIN,Target-only attribute - varchar(20) Social Insurance Number. Canadian tax identifier in Target.
+N/A,N/A,Entity.SSN,Target-only attribute - varchar(20) Social Security Number. US tax identifier in Entity table (Source had in CUSTOMER).
+N/A,N/A,Entity.Note,Target-only attribute - varchar(255) notes field. New free-text annotation capability in Target.
+N/A,N/A,Entity.CalendarPatternNameId,Target-only attribute - uniqueidentifier calendar pattern reference. New fiscal calendar management in Target.
+N/A,N/A,Entity.EntityShortName,Target-only attribute - varchar(50) entity short name. New abbreviated naming field in Target.
+N/A,N/A,EntityHistory.HistoryId,Target-only table/attribute - uniqueidentifier primary key for audit history. New comprehensive audit trail table in Target.
+N/A,N/A,EntityHistory.EntityId,Target-only attribute - uniqueidentifier entity reference for history tracking. New audit capability in Target.
+N/A,N/A,EntityHistory.FieldName,Target-only attribute - nvarchar(100) field name for change tracking. New field-level audit in Target.
+N/A,N/A,EntityHistory.OldValue,Target-only attribute - nvarchar(max) previous value. New before-image capture in Target.
+N/A,N/A,EntityHistory.NewValue,Target-only attribute - nvarchar(max) new value. New after-image capture in Target.
+N/A,N/A,EntityHistory.ChangeType,Target-only attribute - nvarchar(10) change type classification. New audit metadata in Target.
+N/A,N/A,EntityHistory.ChangedBy,Target-only attribute - uniqueidentifier user reference for change. New audit trail in Target.
+N/A,N/A,EntityHistory.ChangedDate,Target-only attribute - datetime2(7) change timestamp. New audit timestamp in Target.
+N/A,N/A,EntityHistory.ChangeReason,Target-only attribute - nvarchar(255) reason for change. New audit justification field in Target.
+N/A,N/A,EntityHistory.TransactionId,Target-only attribute - uniqueidentifier transaction reference. New transaction-level audit grouping in Target.
+N/A,N/A,EntityType.EntityTypeId,Target-only table/attribute - uniqueidentifier primary key for entity type lookup. New reference data table in Target.
+N/A,N/A,EntityType.Description,Target-only attribute - nvarchar(255) entity type description. New classification description in Target.
+N/A,N/A,EntityType.EntityIcon,Target-only attribute - nvarchar(50) icon reference for UI. New presentation metadata in Target.
+N/A,N/A,EntityType.TypeCode,Target-only attribute - nvarchar(50) type code. New coded classification in Target.
+N/A,N/A,EntityType.TypeValue,Target-only attribute - nvarchar(50) type value. New classification value in Target.
+N/A,N/A,EntityGroupMapping.EntityId,Target-only table/attribute - uniqueidentifier entity reference for grouping. New many-to-many relationship table in Target.
+N/A,N/A,EntityGroupMapping.EntityGroupId,Target-only attribute - uniqueidentifier entity group reference. New grouping capability in Target.
+Cross-Schema Mapping,CUSTOMER (Source),Customer (Target),Conceptual entity mapping - Source CUSTOMER table maps to Target Customer table with significant structural changes. Source uses char(3) composite key; Target uses uniqueidentifier single key. Address fields moved from inline to BusinessPartyId reference. Enhanced audit fields in Target.
+Cross-Schema Mapping,CLIENT (Source),Entity (Target),Conceptual entity mapping - Source CLIENT concept (char(4) in DBFILE) maps to Target Entity table. Target introduces hierarchical relationship with Enterprise and enhanced entity management capabilities including fiscal periods and accounting basis.
+Cross-Schema Mapping,Source Inline Addresses,Target BusinessPartyId,Architectural pattern change - Source stores address fields inline (CUSTOMER_ADDR, CUSTOMER_CITY, CUSTOMER_STATE, CUSTOMER_ZIP). Target normalizes addresses through BusinessPartyId reference to separate party management system.
+Cross-Schema Mapping,Source char/varchar types,Target nvarchar types,Data type modernization - Source predominantly uses char fixed-length and varchar. Target uses nvarchar for Unicode support and varchar for codes. Requires character set conversion and length adjustments.
+Cross-Schema Mapping,Source int identifiers,Target uniqueidentifier,Primary key strategy change - Source uses int and char composite keys. Target uses uniqueidentifier (GUID) for all primary keys. Requires key transformation and surrogate key generation.
+Cross-Schema Mapping,Source datetime,Target datetime2(7),Temporal data type upgrade - Source uses datetime with 3.33ms precision. Target uses datetime2(7) with 100ns precision for enhanced temporal accuracy.
+Cross-Schema Mapping,Source minimal audit,Target comprehensive audit,Audit capability enhancement - Source has limited audit fields (CHANGED, CHANGED_BY). Target has comprehensive audit (CreatedBy, CreatedDate, UpdatedBy, UpdatedDate, DeactivatedBy, DeactivatedDate) plus EntityHistory table for field-level change tracking.
+Cross-Schema Mapping,Source flat structure,Target hierarchical structure,Schema architecture evolution - Source has flat table structure. Target introduces Enterprise > Customer > Entity hierarchy with normalized reference data (EntityType, EntityGroupMapping) and enhanced relationship management.
+Cross-Schema Mapping,CUSTOMER_SECURITY (Source),No Direct Equivalent (Target),Security model change - Source has explicit CUSTOMER_SECURITY table for user-customer access control. Target schema provided does not include equivalent security tables suggesting security handled externally or in separate schema.
+Cross-Schema Mapping,DBFILE/DBFILE_DETAIL (Source),DocumentId reference (Target),Document management pattern change - Source has explicit DBFILE and DBFILE_DETAIL tables for document storage with inline content. Target uses DocumentId reference suggesting document management externalized to separate document service or repository.
