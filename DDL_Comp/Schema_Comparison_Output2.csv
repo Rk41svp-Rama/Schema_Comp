@@ -1,0 +1,29 @@
+Table Name,Attribute in Schema 1,Attribute in Schema 2,Attribute Mapping Notes
+CUSTOMER,CUSTOMER,CustomerId,Source: char(3) PK, Target: uniqueidentifier PK; Requires type conversion and possible value mapping
+CUSTOMER,CUSTOMER_NAME,CustomerName,Source: char(45), Target: nvarchar(128); Type conversion, length increase
+CUSTOMER,CLIENT_GROUP,CustomerTypeId,Source: char(1), Target: uniqueidentifier; Semantic mapping, type conversion
+CUSTOMER,CLIENT_GROUP_DESCRIPTION,Description,Source: char(45), Target: varchar(255); Type conversion, length increase
+CUSTOMER,CUSTOMER_ADDR,OfficeCode,Source: char(45), Target: nvarchar(25); Type conversion, possible truncation
+CUSTOMER,CHANGED,UpdatedDate,Source: datetime, Target: datetime2(7); Precision increase
+CUSTOMER,CHANGED_BY,UpdatedBy,Source: char(12), Target: uniqueidentifier; Type conversion
+CUSTOMER,SSN,SSN,Source: char(9), Target: varchar(20); Type conversion, length increase
+CUSTOMER,FEDERAL_ID,TIN,Source: char(9), Target: varchar(50); Type conversion, length increase
+CUSTOMER,STATE_ID,TCCNumber,Source: char(20), Target: varchar(50); Type conversion, length increase
+CUSTOMER,ACCOUNT_CAREOF,UseMailingAddressAsPrimary,Source: char(45), Target: bit; Semantic mapping, requires transformation logic
+CUSTOMER,CLIENT_CAREOF,BusinessPartyId,Source: char(45), Target: uniqueidentifier; Type conversion, semantic mapping
+CUSTOMER,ACCOUNT_ADDR1,,No direct mapping
+CUSTOMER,ACCOUNT_ADDR2,,No direct mapping
+CUSTOMER,ACCOUNT_ADDR3,,No direct mapping
+CUSTOMER,ACCOUNT_ADDR4,,No direct mapping
+CUSTOMER,CUSTOMER_NAME2,,No direct mapping
+CUSTOMER,CUSTOMER_ADDR2,,No direct mapping
+CUSTOMER,CUSTOMER_CITY,,No direct mapping
+CUSTOMER,CUSTOMER_STATE,,No direct mapping
+CUSTOMER,CUSTOMER_ZIP,,No direct mapping
+CUSTOMER_SECURITY,USER_NAME,,No direct mapping in target
+CUSTOMER_SECURITY,CUSTOMER,CustomerId,Source: char(3), Target: uniqueidentifier; Type conversion, PK/FK mapping
+CUSTOMER_SECURITY,CURRENT_FLAG,IsActive,Source: char(1), Target: bit; Requires transformation (Y/N or 1/0 to bit)
+CUSTOMER_SECURITY,EIN_CURRENT_FLAG,,No direct mapping
+DBFILE,,,,No direct mapping table in target
+DBFILE_DETAIL,,,,No direct mapping table in target
+DOCUMENT_ID,Customer,DOCUMENT_ID,Source: char(3), Target: uniqueidentifier; Type conversion if mapped to Entity.DocumentId
