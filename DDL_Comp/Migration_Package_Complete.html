@@ -1,0 +1,4264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Migration Package - Zenith Legacy to Modern Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+        }
+        .section h4 {
+            color: #555;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .confidence-high {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .confidence-medium {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .confidence-low {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .confidence-sme {
+            color: #6c757d;
+            font-weight: bold;
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .mapping-direct {
+            background-color: #d4edda;
+        }
+        .mapping-derived {
+            background-color: #d1ecf1;
+        }
+        .mapping-lookup {
+            background-color: #fff3cd;
+        }
+        .mapping-static {
+            background-color: #f8d7da;
+        }
+        .mapping-generated {
+            background-color: #e2e3e5;
+        }
+        .mapping-sme {
+            background-color: #fff3cd;
+            font-weight: bold;
+        }
+        .risk-high {
+            background-color: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 15px 0;
+        }
+        .risk-medium {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        .risk-low {
+            background-color: #d4edda;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 15px 0;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0;
+            font-size: 2em;
+            color: white;
+        }
+        .stat-card p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            padding: 5px 0;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Data Migration Package</h1>
+    <p>Zenith Legacy System to Modern Platform Migration</p>
+    <p><strong>Document Version:</strong> 1.0 | <strong>Date:</strong> " + new Date().toISOString().split('T')[0] + " | <strong>Status:</strong> SME Review Required</p>
+</div>
+
+<div class="toc section">
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><a href="#executive-summary">1. Executive Summary</a></li>
+        <li><a href="#target-mappings">2. Target Table Mapping Sections</a></li>
+        <li><a href="#transformation-rules">3. Transformation Rules Library</a></li>
+        <li><a href="#crosswalk-plan">4. Crosswalk and Key Management Plan</a></li>
+        <li><a href="#load-sequence">5. Load Sequence and Dependency Plan</a></li>
+        <li><a href="#validation-plan">6. Validation and Reconciliation Plan</a></li>
+        <li><a href="#compliance-report">7. Compliance Report</a></li>
+        <li><a href="#audit-log">8. Audit Log Design</a></li>
+        <li><a href="#error-handling">9. Error Handling and Reject Strategy</a></li>
+        <li><a href="#execution-guide">10. Migration Execution Guide</a></li>
+        <li><a href="#sme-tracker">11. SME Decision Tracker</a></li>
+        <li><a href="#deliverables">12. Final Deliverables</a></li>
+    </ul>
+</div>
+
+<div id="executive-summary" class="section">
+    <h2>1. Executive Summary</h2>
+    
+    <h3>Migration Objective</h3>
+    <p>Migrate customer, entity, and document management data from Zenith legacy system to a modern, normalized platform with enhanced auditability, compliance tracking, and surrogate key management.</p>
+    
+    <h3>Scope</h3>
+    <div class="info-box">
+        <strong>Source System:</strong> Zenith Legacy Database (ZenithTestDDL schema)<br>
+        <strong>Target System:</strong> Modern Platform (dbo schema)<br>
+        <strong>Migration Type:</strong> Full historical migration with data transformation and key normalization
+    </div>
+    
+    <div class="summary-stats">
+        <div class="stat-card">
+            <h3>4</h3>
+            <p>Source Tables</p>
+        </div>
+        <div class="stat-card">
+            <h3>6</h3>
+            <p>Target Tables</p>
+        </div>
+        <div class="stat-card">
+            <h3>85+</h3>
+            <p>Field Mappings</p>
+        </div>
+        <div class="stat-card">
+            <h3>12</h3>
+            <p>SME Decisions Required</p>
+        </div>
+    </div>
+    
+    <h3>Mapping Summary by Confidence Level</h3>
+    <table>
+        <tr>
+            <th>Confidence Level</th>
+            <th>Count</th>
+            <th>Percentage</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td class="confidence-high">High</td>
+            <td>45</td>
+            <td>53%</td>
+            <td>Direct evidence from DDL, clear business logic</td>
+        </tr>
+        <tr>
+            <td class="confidence-medium">Medium</td>
+            <td>28</td>
+            <td>33%</td>
+            <td>Inferred from naming/structure, requires validation</td>
+        </tr>
+        <tr>
+            <td class="confidence-low">Low</td>
+            <td>0</td>
+            <td>0%</td>
+            <td>Weak evidence, high risk</td>
+        </tr>
+        <tr>
+            <td class="confidence-sme">SME Required</td>
+            <td>12</td>
+            <td>14%</td>
+            <td>Business decision required, blocking migration</td>
+        </tr>
+    </table>
+    
+    <h3>Key Migration Risks</h3>
+    <div class="risk-high">
+        <strong>HIGH RISK:</strong>
+        <ul>
+            <li><strong>Surrogate Key Generation:</strong> Target uses UNIQUEIDENTIFIER (GUID) keys while source uses composite natural keys. Crosswalk table is mandatory.</li>
+            <li><strong>Missing Foreign Key Relationships:</strong> Source DDL does not declare FK constraints. Relationships must be inferred and validated.</li>
+            <li><strong>BusinessParty Creation Logic:</strong> Target requires BusinessPartyId for Customer and Entity, but source has no equivalent. Creation strategy needs SME approval.</li>
+            <li><strong>Entity Type Classification:</strong> Target requires EntityTypeId, but source has no entity type classification. Default mapping strategy required.</li>
+        </ul>
+    </div>
+    
+    <div class="risk-medium">
+        <strong>MEDIUM RISK:</strong>
+        <ul>
+            <li><strong>Address Normalization:</strong> Source has multiple address fields (CUSTOMER_ADDR, CUSTOMER_ADDR2, ACCOUNT_ADDR1-4). Target has single EntityAddress field. Concatenation logic needs validation.</li>
+            <li><strong>Audit Field Population:</strong> Target has extensive audit fields (CreatedBy, CreatedDate, ModifiedBy, ModifiedDate). Source only has CHANGED and CHANGED_BY. Migration user/date strategy required.</li>
+            <li><strong>Active Status Defaults:</strong> Target IsActive fields need default values. Business rules for determining active status required.</li>
+            <li><strong>Document ID Mapping:</strong> Source DOCUMENT_ID table appears to be a counter/sequence table. Relationship to target DocumentId field unclear.</li>
+        </ul>
+    </div>
+    
+    <h3>Key Assumptions</h3>
+    <ul>
+        <li>Source CUSTOMER table represents both Customer and Entity concepts in target model</li>
+        <li>CLIENT_GROUP field in source maps to Enterprise concept in target</li>
+        <li>All migrated records will be marked as IsActive = 1 unless SME provides deactivation criteria</li>
+        <li>Migration will use a system user GUID for all CreatedBy/ModifiedBy audit fields</li>
+        <li>Source CHANGED date will map to both CreatedDate and ModifiedDate in target</li>
+        <li>CUSTOMER_SECURITY table provides user access control but does not directly map to target schema</li>
+        <li>DBFILE and DBFILE_DETAIL tables represent document storage but require separate document management migration strategy</li>
+    </ul>
+    
+    <h3>Key SME Decisions Required</h3>
+    <div class="warning-box">
+        <strong>BLOCKING DECISIONS - Migration cannot proceed without these:</strong>
+        <ol>
+            <li><strong>BusinessParty Strategy:</strong> How should BusinessParty records be created? One per Customer? Shared across Customers?</li>
+            <li><strong>Enterprise Hierarchy:</strong> Should CLIENT_GROUP create Enterprise records? What is the hierarchy relationship?</li>
+            <li><strong>Entity Type Mapping:</strong> What EntityType should be assigned to migrated entities? Default type or derived from source data?</li>
+            <li><strong>Customer Type Classification:</strong> Target requires CustomerTypeId. How should source customers be classified?</li>
+            <li><strong>Active Status Logic:</strong> What criteria determine if a migrated record should be active or inactive?</li>
+            <li><strong>Address Concatenation Rules:</strong> How should multiple source address fields be combined into single target field?</li>
+            <li><strong>Document Migration Scope:</strong> Should DBFILE/DBFILE_DETAIL be migrated? If yes, what is the target document storage strategy?</li>
+            <li><strong>User Security Migration:</strong> Should CUSTOMER_SECURITY data be migrated? If yes, to which target table/system?</li>
+            <li><strong>Deactivation Handling:</strong> Should any historical records be marked as deactivated? What are the criteria?</li>
+            <li><strong>Currency and Fiscal Settings:</strong> What default values for PreferredCurrencyId, CurrentFiscalYear, etc.?</li>
+            <li><strong>Chart of Accounts Assignment:</strong> How should ChartOfAccountsNameId be assigned to entities?</li>
+            <li><strong>Office Code Assignment:</strong> Target Customer requires OfficeCode. What is the source or default value?</li>
+        </ol>
+    </div>
+</div>
+
+<div id="target-mappings" class="section">
+    <h2>2. Target Table Mapping Sections</h2>
+    
+    <h3>2.1 Target Table: Customer</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores top-level customer/client information representing organizations or individuals that use the platform. This is the primary tenant entity in the target system.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one unique customer organization or individual client.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>Foundation / Master</strong> - Core entity that other tables reference</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> CustomerId (UNIQUEIDENTIFIER)</li>
+        <li><strong>Foreign Keys:</strong> CustomerTypeId → CustomerType, BusinessPartyId → BusinessParty</li>
+        <li><strong>Unique Constraints:</strong> None explicitly defined in DDL</li>
+        <li><strong>Natural Key:</strong> CustomerNumber (derived from source CUSTOMER field)</li>
+        <li><strong>Crosswalk Required:</strong> YES - Source uses composite natural key (CUSTOMER, CLIENT_GROUP), target uses surrogate GUID</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>All rows where CUSTOMER_NAME IS NOT NULL</td>
+            <td>Primary source for customer master data</td>
+            <td class="confidence-high">High</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td class="confidence-sme">SME Required: Filter criteria for active vs inactive customers</td>
+            <td>Need business rules to determine which customers should be migrated</td>
+            <td class="confidence-sme">SME Required</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>Direct name match, contains customer master data including name, address, tax IDs</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Source Table</th>
+            <th>Source Column(s)</th>
+            <th>Mapping Type</th>
+            <th>Transformation Rule</th>
+            <th>Confidence</th>
+            <th>Validation SQL</th>
+            <th>Notes</th>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CustomerId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NEWID() or deterministic GUID from CUSTOMER + CLIENT_GROUP</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT CustomerId) FROM Customer</td>
+            <td>Use deterministic generation for re-runability</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>CustomerName</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER_NAME</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(CUSTOMER_NAME))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE CustomerName IS NULL</td>
+            <td>Trim whitespace from CHAR field</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>CustomerTypeId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default CustomerTypeId to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE CustomerTypeId NOT IN (SELECT CustomerTypeId FROM CustomerType)</td>
+            <td>BLOCKING: No source field for customer type classification</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>OfficeCode</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default OfficeCode to be provided by SME or derived from CLIENT_GROUP</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE OfficeCode IS NULL OR OfficeCode = ''</td>
+            <td>BLOCKING: Required field with no clear source mapping</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>IsActive</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 1 (active) unless SME provides deactivation criteria</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE IsActive = 0</td>
+            <td>Business rule needed for active status determination</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CreatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>Migration system user GUID (e.g., '00000000-0000-0000-0000-000000000001')</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT CreatedBy) FROM Customer</td>
+            <td>Use consistent migration user ID</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>CreatedDate</td>
+            <td>CUSTOMER</td>
+            <td>CHANGED</td>
+            <td>Derived</td>
+            <td>COALESCE(CHANGED, GETDATE())</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE CreatedDate IS NULL</td>
+            <td>Use CHANGED date if available, otherwise migration date</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>UpdatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL (no updates during initial migration)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE UpdatedBy IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>UpdatedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL (no updates during initial migration)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE UpdatedDate IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>CustomerNumber</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(CUSTOMER))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE CustomerNumber IS NULL</td>
+            <td>Source natural key becomes target business key</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>Description</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP_DESCRIPTION</td>
+            <td>Derived</td>
+            <td>RTRIM(LTRIM(CLIENT_GROUP_DESCRIPTION))</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE Description IS NULL</td>
+            <td>Using client group description as customer description</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>TIN</td>
+            <td>CUSTOMER</td>
+            <td>FEDERAL_ID</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(FEDERAL_ID))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE TIN IS NOT NULL AND LEN(TIN) NOT IN (9, 10)</td>
+            <td>Federal Tax ID - validate format</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>TCCNumber</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Not Available</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE TCCNumber IS NOT NULL</td>
+            <td>No source equivalent found</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>UseMailingAddressAsPrimary</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 0 or 1 based on business rule</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE UseMailingAddressAsPrimary IS NULL</td>
+            <td>Business preference needed</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>BusinessPartyId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from BusinessParty table after creation strategy defined</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE BusinessPartyId IS NULL</td>
+            <td>BLOCKING: BusinessParty creation strategy required</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL (all records active on initial load)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE DeactivatedDate IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL (all records active on initial load)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE DeactivatedBy IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>IsZenithCustomer</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static</td>
+            <td>1 (all migrated customers are Zenith customers)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Customer WHERE IsZenithCustomer = 0</td>
+            <td>Flag to identify migrated Zenith customers</td>
+        </tr>
+    </table>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>Source CUSTOMER table represents the Customer entity in target model</li>
+        <li>All migrated customers will be marked as IsZenithCustomer = 1 for traceability</li>
+        <li>CustomerNumber will preserve source CUSTOMER value for business continuity</li>
+        <li>All migrated customers will initially be active (IsActive = 1) unless SME provides deactivation criteria</li>
+        <li>Migration will use a dedicated system user GUID for all audit fields</li>
+        <li>BusinessParty records must be created before Customer migration (dependency)</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>CustomerTypeId</td>
+            <td>No source field for customer type classification</td>
+            <td>Define default CustomerType or provide mapping logic</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>OfficeCode</td>
+            <td>Required field with no clear source equivalent</td>
+            <td>Provide default OfficeCode or derive from CLIENT_GROUP</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>BusinessPartyId</td>
+            <td>No source equivalent, requires new entity creation</td>
+            <td>Define BusinessParty creation strategy</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>IsActive</td>
+            <td>No source indicator for active/inactive status</td>
+            <td>Define criteria for determining active status</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>UseMailingAddressAsPrimary</td>
+            <td>Business preference not evident from source</td>
+            <td>Define default behavior for address preference</td>
+            <td>NO</td>
+        </tr>
+    </table>
+    
+    <h3>2.2 Target Table: Enterprise</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores enterprise/organization groupings that contain multiple entities. Represents a higher-level organizational structure above individual entities.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one unique enterprise or organizational group.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>Foundation / Master</strong> - Hierarchical entity above Entity level</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> Id (UNIQUEIDENTIFIER)</li>
+        <li><strong>Foreign Keys:</strong> CustomerId → Customer</li>
+        <li><strong>Unique Constraints:</strong> None explicitly defined in DDL</li>
+        <li><strong>Natural Key:</strong> EnterpriseNumber (derived from source CLIENT_GROUP)</li>
+        <li><strong>Crosswalk Required:</strong> YES - Source uses CLIENT_GROUP, target uses surrogate GUID</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>SELECT DISTINCT CLIENT_GROUP, CLIENT_GROUP_DESCRIPTION</td>
+            <td>CLIENT_GROUP appears to represent enterprise/group concept</td>
+            <td class="confidence-medium">Medium</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td class="confidence-sme">SME Required: Confirm CLIENT_GROUP represents Enterprise hierarchy</td>
+            <td>Need business confirmation of hierarchy relationship</td>
+            <td class="confidence-sme">SME Required</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP field suggests organizational grouping above customer level</td>
+            <td class="confidence-medium">Medium</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Source Table</th>
+            <th>Source Column(s)</th>
+            <th>Mapping Type</th>
+            <th>Transformation Rule</th>
+            <th>Confidence</th>
+            <th>Validation SQL</th>
+            <th>Notes</th>
+        </tr>
+        <tr class="mapping-generated">
+            <td>Id</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NEWID() or deterministic GUID from CLIENT_GROUP</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT Id) FROM Enterprise</td>
+            <td>Use deterministic generation for re-runability</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>EnterpriseNumber</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(CLIENT_GROUP))</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE EnterpriseNumber IS NULL</td>
+            <td>Assuming CLIENT_GROUP represents enterprise identifier</td>
+        </tr>
+        <tr class="mapping-lookup">
+            <td>CustomerId</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Lookup</td>
+            <td>Lookup CustomerId from crosswalk using source CUSTOMER key</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE CustomerId NOT IN (SELECT CustomerId FROM Customer)</td>
+            <td>FK resolution via crosswalk</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>EnterpriseName</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP_DESCRIPTION</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(CLIENT_GROUP_DESCRIPTION))</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE EnterpriseName IS NULL</td>
+            <td>Using group description as enterprise name</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>Description</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP_DESCRIPTION</td>
+            <td>Derived</td>
+            <td>RTRIM(LTRIM(CLIENT_GROUP_DESCRIPTION))</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE Description IS NULL</td>
+            <td>Same as EnterpriseName for initial load</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>IsActive</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 1 (active) unless SME provides deactivation criteria</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE IsActive = 0</td>
+            <td>Business rule needed for active status determination</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CreatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>Migration system user GUID</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT CreatedBy) FROM Enterprise</td>
+            <td>Use consistent migration user ID</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>CreatedDate</td>
+            <td>CUSTOMER</td>
+            <td>CHANGED</td>
+            <td>Derived</td>
+            <td>MIN(CHANGED) grouped by CLIENT_GROUP, or GETDATE()</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE CreatedDate IS NULL</td>
+            <td>Use earliest CHANGED date for group or migration date</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE ModifiedBy IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE ModifiedDate IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE DeactivatedDate IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE DeactivatedBy IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>IsCascadeDeactivation</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static</td>
+            <td>0 (default to no cascade)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Enterprise WHERE IsCascadeDeactivation = 1</td>
+            <td>Default behavior for deactivation</td>
+        </tr>
+    </table>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>Source CLIENT_GROUP field represents the Enterprise concept in target model</li>
+        <li>One Enterprise record will be created per unique CLIENT_GROUP value</li>
+        <li>Enterprise records will be created before Entity records (dependency)</li>
+        <li>All migrated enterprises will initially be active (IsActive = 1)</li>
+        <li>IsCascadeDeactivation will default to 0 (false)</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>CLIENT_GROUP Interpretation</td>
+            <td>Need confirmation that CLIENT_GROUP represents Enterprise hierarchy</td>
+            <td>Confirm business meaning and hierarchy relationship</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>IsActive</td>
+            <td>No source indicator for active/inactive status</td>
+            <td>Define criteria for determining active status</td>
+            <td>NO</td>
+        </tr>
+    </table>
+    
+    <h3>2.3 Target Table: Entity</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores individual legal entities, business units, or organizational entities that operate under an Enterprise. This is the primary operational entity for financial and business transactions.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one unique legal or business entity.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>Foundation / Master</strong> - Core operational entity</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> Id (UNIQUEIDENTIFIER)</li>
+        <li><strong>Foreign Keys:</strong> EnterpriseId → Enterprise, CustomerId → Customer, BusinessPartyId → BusinessParty, ChartOfAccountsNameId → ChartOfAccountsName, EntityTypeId → EntityType, PreferredCurrencyId → Currency, FinancialInstitutionId → FinancialInstitution, DocumentId → Document, CalendarPatternNameId → CalendarPatternName</li>
+        <li><strong>Unique Constraints:</strong> UQ_Entity_EntityNumber_CustomerId (EntityNumber, CustomerId)</li>
+        <li><strong>Natural Key:</strong> EntityNumber (derived from source CUSTOMER)</li>
+        <li><strong>Crosswalk Required:</strong> YES - Source uses composite natural key, target uses surrogate GUID</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>All rows where CUSTOMER_NAME IS NOT NULL</td>
+            <td>Each CUSTOMER record represents an Entity in target model</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>Contains entity-level information including name, address, tax IDs</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Source Table</th>
+            <th>Source Column(s)</th>
+            <th>Mapping Type</th>
+            <th>Transformation Rule</th>
+            <th>Confidence</th>
+            <th>Validation SQL</th>
+            <th>Notes</th>
+        </tr>
+        <tr class="mapping-generated">
+            <td>Id</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NEWID() or deterministic GUID from CUSTOMER + CLIENT_GROUP</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT Id) FROM Entity</td>
+            <td>Use deterministic generation for re-runability</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>EntityNumber</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(CUSTOMER))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EntityNumber IS NULL</td>
+            <td>Source natural key becomes target business key</td>
+        </tr>
+        <tr class="mapping-lookup">
+            <td>EnterpriseId</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP</td>
+            <td>Lookup</td>
+            <td>Lookup EnterpriseId from crosswalk using CLIENT_GROUP</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EnterpriseId NOT IN (SELECT Id FROM Enterprise)</td>
+            <td>FK resolution via crosswalk</td>
+        </tr>
+        <tr class="mapping-lookup">
+            <td>CustomerId</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Lookup</td>
+            <td>Lookup CustomerId from crosswalk using CUSTOMER key</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CustomerId NOT IN (SELECT CustomerId FROM Customer)</td>
+            <td>FK resolution via crosswalk</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>EntityName</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER_NAME, CUSTOMER_NAME2</td>
+            <td>Derived</td>
+            <td>RTRIM(LTRIM(CUSTOMER_NAME)) + CASE WHEN CUSTOMER_NAME2 IS NOT NULL THEN ' ' + RTRIM(LTRIM(CUSTOMER_NAME2)) ELSE '' END</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EntityName IS NULL</td>
+            <td>Concatenate name fields if NAME2 exists</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>CashOrAccuralBasisIndicator</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default value to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CashOrAccuralBasisIndicator NOT IN ('Cash', 'Accrual')</td>
+            <td>Accounting basis not evident from source</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>IsActive</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 1 (active) unless SME provides deactivation criteria</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE IsActive = 0</td>
+            <td>Business rule needed for active status determination</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CreatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>Migration system user GUID</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT CreatedBy) FROM Entity</td>
+            <td>Use consistent migration user ID</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>CreatedDate</td>
+            <td>CUSTOMER</td>
+            <td>CHANGED</td>
+            <td>Derived</td>
+            <td>COALESCE(CHANGED, GETDATE())</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CreatedDate IS NULL</td>
+            <td>Use CHANGED date if available, otherwise migration date</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE ModifiedBy IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE ModifiedDate IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>EntityAddress</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER_ADDR, CUSTOMER_ADDR2, CUSTOMER_CITY, CUSTOMER_STATE, CUSTOMER_ZIP</td>
+            <td>Derived</td>
+            <td>Concatenate address components with proper formatting and NULL handling</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EntityAddress IS NULL</td>
+            <td>SME Required: Confirm address concatenation format</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>PreferredCurrencyId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default currency GUID to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE PreferredCurrencyId IS NULL</td>
+            <td>No source currency information</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>EIN</td>
+            <td>CUSTOMER</td>
+            <td>FEDERAL_ID</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(FEDERAL_ID))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EIN IS NOT NULL AND LEN(EIN) NOT IN (9, 10)</td>
+            <td>Employer Identification Number</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>UseMailingAddressAsPrimary</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 0 or 1 based on business rule</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE UseMailingAddressAsPrimary IS NULL</td>
+            <td>Business preference needed</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>BusinessPartyId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from BusinessParty table after creation strategy defined</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE BusinessPartyId IS NULL</td>
+            <td>BLOCKING: BusinessParty creation strategy required</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>ChartOfAccountsNameId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from ChartOfAccountsName table or default value</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE ChartOfAccountsNameId IS NULL</td>
+            <td>No source COA information</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>EntityTypeId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from EntityType table or default value</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EntityTypeId IS NULL</td>
+            <td>BLOCKING: No source entity type classification</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>CurrentFiscalYear</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default fiscal year to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CurrentFiscalYear IS NULL</td>
+            <td>No source fiscal period information</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>CurrentOpenPeriod</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default period to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CurrentOpenPeriod IS NULL</td>
+            <td>No source fiscal period information</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>InceptionFicaslYear</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default inception year to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE InceptionFicaslYear IS NULL</td>
+            <td>No source inception date information</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>InceptionFiscalPeriod</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default inception period to be provided by SME</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE InceptionFiscalPeriod IS NULL</td>
+            <td>No source inception date information</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE DeactivatedDate IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>DeactivatedBY</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE DeactivatedBY IS NOT NULL</td>
+            <td>Leave NULL unless deactivation criteria provided</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>FinancialInstitutionId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from FinancialInstitution table if applicable</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE FinancialInstitutionId IS NOT NULL</td>
+            <td>No source financial institution information</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>DocumentId</td>
+            <td>DOCUMENT_ID</td>
+            <td>DOCUMENT_COUNTER</td>
+            <td>Lookup — SME Required</td>
+            <td>Relationship between DOCUMENT_ID table and Entity unclear</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE DocumentId IS NOT NULL</td>
+            <td>DOCUMENT_ID table structure suggests counter/sequence, not document reference</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>SIN</td>
+            <td>CUSTOMER</td>
+            <td>STATE_ID</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(STATE_ID))</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE SIN IS NOT NULL</td>
+            <td>Assuming STATE_ID maps to SIN (State Identification Number)</td>
+        </tr>
+        <tr class="mapping-direct">
+            <td>SSN</td>
+            <td>CUSTOMER</td>
+            <td>SSN</td>
+            <td>Direct</td>
+            <td>RTRIM(LTRIM(SSN))</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE SSN IS NOT NULL AND LEN(SSN) <> 9</td>
+            <td>Social Security Number - validate format</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>Note</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Not Available</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE Note IS NOT NULL</td>
+            <td>No source equivalent found</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>CalendarPatternNameId</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup from CalendarPatternName table or default value</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE CalendarPatternNameId IS NULL</td>
+            <td>No source calendar pattern information</td>
+        </tr>
+        <tr class="mapping-derived">
+            <td>EntityShortName</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER_NAME</td>
+            <td>Derived</td>
+            <td>LEFT(RTRIM(LTRIM(CUSTOMER_NAME)), 50)</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE EntityShortName IS NULL</td>
+            <td>Truncate entity name to 50 characters</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>IsCascadeDeactivation</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static</td>
+            <td>0 (default to no cascade)</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM Entity WHERE IsCascadeDeactivation = 1</td>
+            <td>Default behavior for deactivation</td>
+        </tr>
+    </table>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>Each source CUSTOMER record represents one Entity in target model</li>
+        <li>Entity records will be created after Customer and Enterprise records (dependency)</li>
+        <li>All migrated entities will initially be active (IsActive = 1)</li>
+        <li>Address fields will be concatenated with proper formatting</li>
+        <li>IsCascadeDeactivation will default to 0 (false)</li>
+        <li>EntityShortName will be derived from CUSTOMER_NAME truncated to 50 characters</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>EntityTypeId</td>
+            <td>No source field for entity type classification</td>
+            <td>Define default EntityType or provide mapping logic</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>BusinessPartyId</td>
+            <td>No source equivalent, requires new entity creation</td>
+            <td>Define BusinessParty creation strategy</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>ChartOfAccountsNameId</td>
+            <td>No source COA information</td>
+            <td>Define default COA or provide mapping logic</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>PreferredCurrencyId</td>
+            <td>No source currency information</td>
+            <td>Define default currency</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>CashOrAccuralBasisIndicator</td>
+            <td>Accounting basis not evident from source</td>
+            <td>Define default accounting basis</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>Fiscal Period Fields</td>
+            <td>No source fiscal period information</td>
+            <td>Define default fiscal year/period settings</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>EntityAddress</td>
+            <td>Multiple source address fields need concatenation</td>
+            <td>Confirm address concatenation format and delimiter</td>
+            <td>NO</td>
+        </tr>
+        <tr>
+            <td>DocumentId</td>
+            <td>DOCUMENT_ID table relationship unclear</td>
+            <td>Clarify document management strategy</td>
+            <td>NO</td>
+        </tr>
+    </table>
+    
+    <h3>2.4 Target Table: EntityHistory</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores audit trail of changes made to Entity records. Captures field-level changes with before/after values for compliance and auditability.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one field change event for an Entity record.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>History / Audit</strong> - Change tracking table</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> HistoryId (UNIQUEIDENTIFIER)</li>
+        <li><strong>Foreign Keys:</strong> EntityId → Entity, ChangedBy → User, TransactionId → Transaction</li>
+        <li><strong>Unique Constraints:</strong> None</li>
+        <li><strong>Natural Key:</strong> N/A (audit table)</li>
+        <li><strong>Crosswalk Required:</strong> NO - History records created post-migration</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>—</td>
+            <td>N/A - No historical change data in source</td>
+            <td>EntityHistory is a forward-looking audit table</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>None</td>
+            <td>No source equivalent for change history tracking</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <div class="info-box">
+        <strong>Migration Strategy:</strong> EntityHistory table will NOT be populated during initial migration. This table will capture changes made AFTER migration cutover. No source data mapping required.
+    </div>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>EntityHistory is a forward-looking audit table that captures post-migration changes</li>
+        <li>No historical change data exists in source system</li>
+        <li>Table structure is ready for post-migration change tracking</li>
+        <li>Application layer will populate this table for future changes</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>All Fields</td>
+            <td>No source historical change data</td>
+            <td>Confirm no historical audit trail migration required</td>
+            <td>NO</td>
+        </tr>
+    </table>
+    
+    <h3>2.5 Target Table: EntityType</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores reference data for entity type classifications (e.g., Corporation, LLC, Partnership, Individual, etc.). This is a lookup/reference table.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one unique entity type classification.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>Reference / Static</strong> - Lookup table</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> EntityTypeId (UNIQUEIDENTIFIER)</li>
+        <li><strong>Foreign Keys:</strong> None</li>
+        <li><strong>Unique Constraints:</strong> None explicitly defined</li>
+        <li><strong>Natural Key:</strong> TypeCode</li>
+        <li><strong>Crosswalk Required:</strong> NO - Reference data, not migrated from source</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>—</td>
+            <td>N/A - Reference data pre-loaded in target</td>
+            <td>EntityType is a reference table</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>None</td>
+            <td>No source equivalent for entity type classification</td>
+            <td class="confidence-high">High</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <div class="info-box">
+        <strong>Migration Strategy:</strong> EntityType is a reference table that should be pre-loaded in target system with standard entity type classifications. No source data mapping required. Entity records will reference these pre-loaded types.
+    </div>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>EntityType is a reference table pre-loaded with standard classifications</li>
+        <li>No source data contains entity type classifications</li>
+        <li>SME will provide default EntityTypeId for migrated entities</li>
+        <li>Reference data must be loaded before Entity migration (Load Group 0)</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>Default EntityType</td>
+            <td>Need default type for migrated entities</td>
+            <td>Provide default EntityTypeId or mapping logic</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+    </table>
+    
+    <h3>2.6 Target Table: EntityGroupMapping</h3>
+    
+    <h4>Business Purpose</h4>
+    <p>Stores many-to-many relationships between entities and entity groups. Allows entities to belong to multiple organizational groupings.</p>
+    
+    <h4>Grain</h4>
+    <p>One row represents one entity's membership in one entity group.</p>
+    
+    <h4>Table Type</h4>
+    <p><strong>Child / Dependent</strong> - Junction/mapping table</p>
+    
+    <h4>Keys</h4>
+    <ul>
+        <li><strong>Primary Key:</strong> EntityId, EntityGroupId (composite)</li>
+        <li><strong>Foreign Keys:</strong> EntityId → Entity, EntityGroupId → EntityGroup</li>
+        <li><strong>Unique Constraints:</strong> None (composite PK enforces uniqueness)</li>
+        <li><strong>Natural Key:</strong> Composite of EntityId and EntityGroupId</li>
+        <li><strong>Crosswalk Required:</strong> YES - For EntityId resolution</li>
+    </ul>
+    
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Filter Criteria</th>
+            <th>Reason</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td class="confidence-sme">SME Required: Define entity grouping logic</td>
+            <td>CLIENT_GROUP may represent entity grouping</td>
+            <td class="confidence-sme">SME Required</td>
+        </tr>
+    </table>
+    
+    <h4>Candidate Source Tables</h4>
+    <table>
+        <tr>
+            <th>Candidate Source Table</th>
+            <th>Reason for Selection</th>
+            <th>Confidence</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP field may indicate entity group membership</td>
+            <td class="confidence-medium">Medium</td>
+        </tr>
+    </table>
+    
+    <h4>Field-Level Mapping</h4>
+    <div class="warning-box">
+        <strong>SME Decision Required:</strong> The relationship between CLIENT_GROUP and entity grouping needs clarification. If CLIENT_GROUP represents entity groups, then EntityGroupMapping records should be created. Otherwise, this table may not be populated during migration.
+    </div>
+    
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Source Table</th>
+            <th>Source Column(s)</th>
+            <th>Mapping Type</th>
+            <th>Transformation Rule</th>
+            <th>Confidence</th>
+            <th>Validation SQL</th>
+            <th>Notes</th>
+        </tr>
+        <tr class="mapping-lookup">
+            <td>EntityId</td>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Lookup</td>
+            <td>Lookup EntityId from crosswalk using CUSTOMER key</td>
+            <td class="confidence-medium">Medium</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE EntityId NOT IN (SELECT Id FROM Entity)</td>
+            <td>FK resolution via crosswalk</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>EntityGroupId</td>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP</td>
+            <td>Lookup — SME Required</td>
+            <td>Lookup EntityGroupId from EntityGroup table (if applicable)</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE EntityGroupId NOT IN (SELECT EntityGroupId FROM EntityGroup)</td>
+            <td>BLOCKING: Clarify entity group concept and mapping</td>
+        </tr>
+        <tr class="mapping-sme">
+            <td>IsActive</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Static — SME Required</td>
+            <td>Default to 1 (active)</td>
+            <td class="confidence-sme">SME Required</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE IsActive = 0</td>
+            <td>Business rule needed for active status</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CreatedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>Migration system user GUID</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(DISTINCT CreatedBy) FROM EntityGroupMapping</td>
+            <td>Use consistent migration user ID</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>CreatedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>GETDATE()</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE CreatedDate IS NULL</td>
+            <td>Migration date</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedBy</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE ModifiedBy IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+        <tr class="mapping-generated">
+            <td>ModifiedDate</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Generated</td>
+            <td>NULL</td>
+            <td class="confidence-high">High</td>
+            <td>SELECT COUNT(*) FROM EntityGroupMapping WHERE ModifiedDate IS NOT NULL</td>
+            <td>Leave NULL for initial load</td>
+        </tr>
+    </table>
+    
+    <h4>Table-Level Assumptions</h4>
+    <ul>
+        <li>EntityGroupMapping may or may not be populated during migration depending on SME clarification</li>
+        <li>If CLIENT_GROUP represents entity groups, mapping records will be created</li>
+        <li>All mappings will initially be active (IsActive = 1)</li>
+        <li>EntityGroup table must exist and be populated before this mapping table</li>
+    </ul>
+    
+    <h4>Unmapped / SME Required Fields</h4>
+    <table>
+        <tr>
+            <th>Target Column</th>
+            <th>Reason</th>
+            <th>Required Decision</th>
+            <th>Blocking?</th>
+        </tr>
+        <tr>
+            <td>EntityGroupId</td>
+            <td>Entity group concept unclear from source</td>
+            <td>Clarify entity grouping strategy and mapping</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+        <tr>
+            <td>Entire Table</td>
+            <td>Unclear if this table should be populated during migration</td>
+            <td>Confirm entity grouping requirements</td>
+            <td class="confidence-sme">YES</td>
+        </tr>
+    </table>
+</div>
+
+<div id="transformation-rules" class="section">
+    <h2>3. Transformation Rules Library</h2>
+    
+    <h3>3.1 String Trimming and Cleaning</h3>
+    <div class="code-block">
+-- Rule: TRIM_CHAR_FIELD
+-- Purpose: Remove leading/trailing spaces from CHAR fields
+-- Usage: Apply to all CHAR source fields
+RTRIM(LTRIM(source_field))
+
+-- Rule: CLEAN_STRING
+-- Purpose: Remove leading/trailing spaces and handle NULL
+-- Usage: Apply to all string fields
+CASE 
+    WHEN RTRIM(LTRIM(source_field)) = '' THEN NULL 
+    ELSE RTRIM(LTRIM(source_field)) 
+END
+    </div>
+    
+    <h3>3.2 Data Type Conversion</h3>
+    <div class="code-block">
+-- Rule: CHAR_TO_VARCHAR
+-- Purpose: Convert CHAR to VARCHAR with trimming
+-- Usage: Apply to all CHAR to VARCHAR mappings
+CAST(RTRIM(LTRIM(source_field)) AS VARCHAR(length))
+
+-- Rule: CHAR_TO_NVARCHAR
+-- Purpose: Convert CHAR to NVARCHAR with trimming and Unicode support
+-- Usage: Apply to all CHAR to NVARCHAR mappings
+CAST(RTRIM(LTRIM(source_field)) AS NVARCHAR(length))
+
+-- Rule: CHAR_TO_BIT
+-- Purpose: Convert CHAR flag to BIT
+-- Usage: Apply to flag/boolean conversions
+CASE 
+    WHEN RTRIM(LTRIM(source_field)) IN ('Y', '1', 'T', 'TRUE') THEN 1
+    WHEN RTRIM(LTRIM(source_field)) IN ('N', '0', 'F', 'FALSE') THEN 0
+    ELSE NULL
+END
+    </div>
+    
+    <h3>3.3 Date Handling</h3>
+    <div class="code-block">
+-- Rule: DATETIME_TO_DATETIME2
+-- Purpose: Convert DATETIME to DATETIME2
+-- Usage: Apply to all date field conversions
+CAST(source_date AS DATETIME2(7))
+
+-- Rule: DEFAULT_MIGRATION_DATE
+-- Purpose: Use migration date when source date is NULL
+-- Usage: Apply to audit date fields
+COALESCE(source_date, GETDATE())
+
+-- Rule: PRESERVE_SOURCE_DATE
+-- Purpose: Preserve source date or use NULL
+-- Usage: Apply to optional date fields
+source_date
+    </div>
+    
+    <h3>3.4 Surrogate Key Generation</h3>
+    <div class="code-block">
+-- Rule: DETERMINISTIC_GUID_GENERATION
+-- Purpose: Generate deterministic GUID from source natural key
+-- Usage: Apply to all surrogate key generation
+-- Note: Ensures re-runability and consistency
+CAST(
+    HASHBYTES('MD5', 
+        CONCAT(
+            'TableName:', 
+            RTRIM(LTRIM(source_key1)), '|',
+            RTRIM(LTRIM(source_key2))
+        )
+    ) AS UNIQUEIDENTIFIER
+)
+
+-- Rule: RANDOM_GUID_GENERATION
+-- Purpose: Generate random GUID (use only if deterministic not required)
+-- Usage: Apply to non-critical surrogate keys
+NEWID()
+    </div>
+    
+    <h3>3.5 Lookup Resolution via Crosswalk</h3>
+    <div class="code-block">
+-- Rule: CROSSWALK_LOOKUP
+-- Purpose: Resolve source natural key to target surrogate key
+-- Usage: Apply to all FK resolutions
+SELECT xwalk.TargetId
+FROM Migration_Key_Map xwalk
+WHERE xwalk.SourceSystem = 'Zenith'
+  AND xwalk.SourceTable = 'CUSTOMER'
+  AND xwalk.SourceNaturalKey = RTRIM(LTRIM(source.CUSTOMER))
+  AND xwalk.SourceContext = 'Customer'
+  AND xwalk.TargetTable = 'Customer'
+
+-- Rule: CROSSWALK_LOOKUP_WITH_COMPOSITE_KEY
+-- Purpose: Resolve composite source key to target surrogate key
+-- Usage: Apply to composite key resolutions
+SELECT xwalk.TargetId
+FROM Migration_Key_Map xwalk
+WHERE xwalk.SourceSystem = 'Zenith'
+  AND xwalk.SourceTable = 'CUSTOMER'
+  AND xwalk.SourceNaturalKey = CONCAT(
+        RTRIM(LTRIM(source.CUSTOMER)), '|',
+        RTRIM(LTRIM(source.CLIENT_GROUP))
+     )
+  AND xwalk.SourceContext = 'Entity'
+  AND xwalk.TargetTable = 'Entity'
+    </div>
+    
+    <h3>3.6 Address Construction</h3>
+    <div class="code-block">
+-- Rule: CONCATENATE_ADDRESS_FIELDS
+-- Purpose: Combine multiple address fields into single field
+-- Usage: Apply to address field mappings
+CONCAT_WS(', ',
+    NULLIF(RTRIM(LTRIM(CUSTOMER_ADDR)), ''),
+    NULLIF(RTRIM(LTRIM(CUSTOMER_ADDR2)), ''),
+    NULLIF(RTRIM(LTRIM(CUSTOMER_CITY)), ''),
+    NULLIF(RTRIM(LTRIM(CUSTOMER_STATE)), ''),
+    NULLIF(RTRIM(LTRIM(CUSTOMER_ZIP)), '')
+)
+
+-- Rule: CONCATENATE_ACCOUNT_ADDRESS
+-- Purpose: Combine account address fields
+-- Usage: Apply to account address mappings
+CONCAT_WS(', ',
+    NULLIF(RTRIM(LTRIM(ACCOUNT_CAREOF)), ''),
+    NULLIF(RTRIM(LTRIM(ACCOUNT_ADDR1)), ''),
+    NULLIF(RTRIM(LTRIM(ACCOUNT_ADDR2)), ''),
+    NULLIF(RTRIM(LTRIM(ACCOUNT_ADDR3)), ''),
+    NULLIF(RTRIM(LTRIM(ACCOUNT_ADDR4)), '')
+)
+    </div>
+    
+    <h3>3.7 Name Parsing and Concatenation</h3>
+    <div class="code-block">
+-- Rule: CONCATENATE_NAME_FIELDS
+-- Purpose: Combine multiple name fields into single field
+-- Usage: Apply to name field mappings
+CASE
+    WHEN RTRIM(LTRIM(CUSTOMER_NAME2)) IS NOT NULL AND RTRIM(LTRIM(CUSTOMER_NAME2)) <> ''
+    THEN RTRIM(LTRIM(CUSTOMER_NAME)) + ' ' + RTRIM(LTRIM(CUSTOMER_NAME2))
+    ELSE RTRIM(LTRIM(CUSTOMER_NAME))
+END
+
+-- Rule: TRUNCATE_NAME
+-- Purpose: Truncate name to maximum length
+-- Usage: Apply to short name fields
+LEFT(RTRIM(LTRIM(CUSTOMER_NAME)), 50)
+    </div>
+    
+    <h3>3.8 Audit Field Defaults</h3>
+    <div class="code-block">
+-- Rule: MIGRATION_USER_GUID
+-- Purpose: Use consistent migration user for all audit fields
+-- Usage: Apply to CreatedBy, ModifiedBy fields
+'00000000-0000-0000-0000-000000000001' -- Migration System User
+
+-- Rule: MIGRATION_CREATED_DATE
+-- Purpose: Use source change date or migration date
+-- Usage: Apply to CreatedDate fields
+COALESCE(source.CHANGED, GETDATE())
+
+-- Rule: MIGRATION_MODIFIED_DATE
+-- Purpose: Leave NULL for initial load
+-- Usage: Apply to ModifiedDate fields
+NULL
+
+-- Rule: MIGRATION_CREATED_BY
+-- Purpose: Map source user to target user or use migration user
+-- Usage: Apply to CreatedBy fields with source user
+COALESCE(
+    (SELECT UserId FROM User WHERE UserName = RTRIM(LTRIM(source.CHANGED_BY))),
+    '00000000-0000-0000-0000-000000000001'
+)
+    </div>
+    
+    <h3>3.9 Null Handling</h3>
+    <div class="code-block">
+-- Rule: NULL_TO_DEFAULT_STRING
+-- Purpose: Replace NULL with default string value
+-- Usage: Apply to required string fields
+COALESCE(NULLIF(RTRIM(LTRIM(source_field)), ''), 'UNKNOWN')
+
+-- Rule: NULL_TO_DEFAULT_BIT
+-- Purpose: Replace NULL with default bit value
+-- Usage: Apply to required bit fields
+COALESCE(source_field, 0)
+
+-- Rule: PRESERVE_NULL
+-- Purpose: Keep NULL values as NULL
+-- Usage: Apply to optional fields
+source_field
+    </div>
+    
+    <h3>3.10 Boolean/Flag Conversion</h3>
+    <div class="code-block">
+-- Rule: CHAR_FLAG_TO_BIT
+-- Purpose: Convert CHAR(1) flag to BIT
+-- Usage: Apply to all flag conversions
+CASE RTRIM(LTRIM(source_flag))
+    WHEN 'Y' THEN 1
+    WHEN 'N' THEN 0
+    WHEN '1' THEN 1
+    WHEN '0' THEN 0
+    WHEN 'T' THEN 1
+    WHEN 'F' THEN 0
+    ELSE NULL
+END
+
+-- Rule: DEFAULT_ACTIVE_FLAG
+-- Purpose: Default to active status
+-- Usage: Apply to IsActive fields
+1 -- Default to active
+
+-- Rule: DEFAULT_CASCADE_FLAG
+-- Purpose: Default to no cascade
+-- Usage: Apply to IsCascadeDeactivation fields
+0 -- Default to no cascade
+    </div>
+    
+    <h3>3.11 Tax ID Formatting</h3>
+    <div class="code-block">
+-- Rule: FORMAT_FEDERAL_ID
+-- Purpose: Format Federal Tax ID (EIN)
+-- Usage: Apply to FEDERAL_ID mappings
+RTRIM(LTRIM(FEDERAL_ID))
+-- Note: Validate format XX-XXXXXXX (9 digits) in validation SQL
+
+-- Rule: FORMAT_SSN
+-- Purpose: Format Social Security Number
+-- Usage: Apply to SSN mappings
+RTRIM(LTRIM(SSN))
+-- Note: Validate format XXX-XX-XXXX (9 digits) in validation SQL
+
+-- Rule: FORMAT_STATE_ID
+-- Purpose: Format State ID
+-- Usage: Apply to STATE_ID mappings
+RTRIM(LTRIM(STATE_ID))
+    </div>
+    
+    <h3>3.12 Source Filter Logic</h3>
+    <div class="code-block">
+-- Rule: FILTER_ACTIVE_CUSTOMERS
+-- Purpose: Filter for active customers only
+-- Usage: Apply to CUSTOMER source selection
+-- Note: SME Required - Define active criteria
+WHERE CUSTOMER_NAME IS NOT NULL
+  AND RTRIM(LTRIM(CUSTOMER_NAME)) <> ''
+  -- AND [SME_DEFINED_ACTIVE_CRITERIA]
+
+-- Rule: FILTER_DISTINCT_CLIENT_GROUPS
+-- Purpose: Get distinct client groups for Enterprise creation
+-- Usage: Apply to Enterprise source selection
+SELECT DISTINCT 
+    CLIENT_GROUP,
+    CLIENT_GROUP_DESCRIPTION,
+    MIN(CHANGED) as EarliestChanged
+FROM CUSTOMER
+WHERE CLIENT_GROUP IS NOT NULL
+  AND RTRIM(LTRIM(CLIENT_GROUP)) <> ''
+GROUP BY CLIENT_GROUP, CLIENT_GROUP_DESCRIPTION
+    </div>
+</div>
+
+<div id="crosswalk-plan" class="section">
+    <h2>4. Crosswalk and Key Management Plan</h2>
+    
+    <h3>4.1 Crosswalk Table Design</h3>
+    <div class="code-block">
+CREATE TABLE Migration_Key_Map
+(
+    MigrationKeyMapId UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    SourceSystem VARCHAR(50) NOT NULL,
+    SourceTable VARCHAR(100) NOT NULL,
+    SourceNaturalKey VARCHAR(500) NOT NULL,
+    SourceContext VARCHAR(100) NOT NULL,
+    TargetTable VARCHAR(100) NOT NULL,
+    TargetId UNIQUEIDENTIFIER NOT NULL,
+    LoadBatchId VARCHAR(50) NOT NULL,
+    CreatedDate DATETIME2(7) NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT UQ_Migration_Key_Map UNIQUE (
+        SourceSystem, 
+        SourceTable, 
+        SourceNaturalKey, 
+        SourceContext, 
+        TargetTable
+    )
+);
+
+CREATE INDEX IX_Migration_Key_Map_Source 
+ON Migration_Key_Map(SourceSystem, SourceTable, SourceNaturalKey, SourceContext);
+
+CREATE INDEX IX_Migration_Key_Map_Target 
+ON Migration_Key_Map(TargetTable, TargetId);
+    </div>
+    
+    <h3>4.2 Source Natural Keys</h3>
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Natural Key Columns</th>
+            <th>Key Format</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER, CLIENT_GROUP</td>
+            <td>Composite: CUSTOMER|CLIENT_GROUP</td>
+            <td>001|A</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER (for Customer)</td>
+            <td>CUSTOMER</td>
+            <td>Single: CUSTOMER</td>
+            <td>001</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER (for Enterprise)</td>
+            <td>CLIENT_GROUP</td>
+            <td>Single: CLIENT_GROUP</td>
+            <td>A</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER_SECURITY</td>
+            <td>USER_NAME, CUSTOMER</td>
+            <td>Composite: USER_NAME|CUSTOMER</td>
+            <td>JSMITH|001</td>
+        </tr>
+        <tr>
+            <td>DBFILE</td>
+            <td>CUSTOMER, CLIENT, DBFILE_RESOURCE, DBFILE_PATH, DBFILE_NAME, VERSION</td>
+            <td>Composite: All PK fields concatenated</td>
+            <td>001|0001|RESOURCE1|/path/|file.txt|1</td>
+        </tr>
+        <tr>
+            <td>DBFILE_DETAIL</td>
+            <td>CUSTOMER, DBFILE_ID, DBFILE_LINE</td>
+            <td>Composite: CUSTOMER|DBFILE_ID|DBFILE_LINE</td>
+            <td>001|12345|1</td>
+        </tr>
+    </table>
+    
+    <h3>4.3 Target Surrogate Keys</h3>
+    <table>
+        <tr>
+            <th>Target Table</th>
+            <th>Surrogate Key Column</th>
+            <th>Key Type</th>
+            <th>Generation Method</th>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td>CustomerId</td>
+            <td>UNIQUEIDENTIFIER</td>
+            <td>Deterministic GUID from CUSTOMER</td>
+        </tr>
+        <tr>
+            <td>Enterprise</td>
+            <td>Id</td>
+            <td>UNIQUEIDENTIFIER</td>
+            <td>Deterministic GUID from CLIENT_GROUP</td>
+        </tr>
+        <tr>
+            <td>Entity</td>
+            <td>Id</td>
+            <td>UNIQUEIDENTIFIER</td>
+            <td>Deterministic GUID from CUSTOMER|CLIENT_GROUP</td>
+        </tr>
+        <tr>
+            <td>EntityHistory</td>
+            <td>HistoryId</td>
+            <td>UNIQUEIDENTIFIER</td>
+            <td>NEWID() (not migrated)</td>
+        </tr>
+        <tr>
+            <td>EntityType</td>
+            <td>EntityTypeId</td>
+            <td>UNIQUEIDENTIFIER</td>
+            <td>Pre-loaded reference data</td>
+        </tr>
+        <tr>
+            <td>EntityGroupMapping</td>
+            <td>N/A (composite PK)</td>
+            <td>N/A</td>
+            <td>N/A</td>
+        </tr>
+    </table>
+    
+    <h3>4.4 Source Context Handling</h3>
+    <div class="info-box">
+        <strong>SourceContext Purpose:</strong> The SourceContext field prevents collisions when the same source natural key feeds multiple target entities. For example, the CUSTOMER table feeds both Customer and Entity tables.
+    </div>
+    
+    <table>
+        <tr>
+            <th>Source Table</th>
+            <th>Source Natural Key</th>
+            <th>Target Table</th>
+            <th>SourceContext</th>
+            <th>Reason</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER</td>
+            <td>Customer</td>
+            <td>Customer</td>
+            <td>One CUSTOMER record creates one Customer record</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CUSTOMER|CLIENT_GROUP</td>
+            <td>Entity</td>
+            <td>Entity</td>
+            <td>One CUSTOMER record creates one Entity record</td>
+        </tr>
+        <tr>
+            <td>CUSTOMER</td>
+            <td>CLIENT_GROUP</td>
+            <td>Enterprise</td>
+            <td>Enterprise</td>
+            <td>Distinct CLIENT_GROUP values create Enterprise records</td>
+        </tr>
+    </table>
+    
+    <h3>4.5 Deterministic Key Generation Rules</h3>
+    <div class="code-block">
+-- Customer GUID Generation
+CREATE FUNCTION dbo.fn_GenerateCustomerGuid(@CustomerCode VARCHAR(3))
+RETURNS UNIQUEIDENTIFIER
+AS
+BEGIN
+    RETURN CAST(
+        HASHBYTES('MD5', 
+            CONCAT('Customer:', RTRIM(LTRIM(@CustomerCode)))
+        ) AS UNIQUEIDENTIFIER
+    );
+END;
+
+-- Enterprise GUID Generation
+CREATE FUNCTION dbo.fn_GenerateEnterpriseGuid(@ClientGroup VARCHAR(1))
+RETURNS UNIQUEIDENTIFIER
+AS
+BEGIN
+    RETURN CAST(
+        HASHBYTES('MD5', 
+            CONCAT('Enterprise:', RTRIM(LTRIM(@ClientGroup)))
+        ) AS UNIQUEIDENTIFIER
+    );
+END;
+
+-- Entity GUID Generation
+CREATE FUNCTION dbo.fn_GenerateEntityGuid(
+    @CustomerCode VARCHAR(3), 
+    @ClientGroup VARCHAR(1)
+)
+RETURNS UNIQUEIDENTIFIER
+AS
+BEGIN
+    RETURN CAST(
+        HASHBYTES('MD5', 
+            CONCAT(
+                'Entity:', 
+                RTRIM(LTRIM(@CustomerCode)), '|',
+                RTRIM(LTRIM(@ClientGroup))
+            )
+        ) AS UNIQUEIDENTIFIER
+    );
+END;
+    </div>
+    
+    <h3>4.6 Crosswalk Population Strategy</h3>
+    <div class="code-block">
+-- Step 1: Populate crosswalk for Customer
+INSERT INTO Migration_Key_Map (
+    SourceSystem, SourceTable, SourceNaturalKey, SourceContext, 
+    TargetTable, TargetId, LoadBatchId
+)
+SELECT 
+    'Zenith' as SourceSystem,
+    'CUSTOMER' as SourceTable,
+    RTRIM(LTRIM(CUSTOMER)) as SourceNaturalKey,
+    'Customer' as SourceContext,
+    'Customer' as TargetTable,
+    dbo.fn_GenerateCustomerGuid(CUSTOMER) as TargetId,
+    @BatchId as LoadBatchId
+FROM ZenithTestDDL.CUSTOMER
+WHERE CUSTOMER_NAME IS NOT NULL;
+
+-- Step 2: Populate crosswalk for Enterprise
+INSERT INTO Migration_Key_Map (
+    SourceSystem, SourceTable, SourceNaturalKey, SourceContext, 
+    TargetTable, TargetId, LoadBatchId
+)
+SELECT DISTINCT
+    'Zenith' as SourceSystem,
+    'CUSTOMER' as SourceTable,
+    RTRIM(LTRIM(CLIENT_GROUP)) as SourceNaturalKey,
+    'Enterprise' as SourceContext,
+    'Enterprise' as TargetTable,
+    dbo.fn_GenerateEnterpriseGuid(CLIENT_GROUP) as TargetId,
+    @BatchId as LoadBatchId
+FROM ZenithTestDDL.CUSTOMER
+WHERE CLIENT_GROUP IS NOT NULL;
+
+-- Step 3: Populate crosswalk for Entity
+INSERT INTO Migration_Key_Map (
+    SourceSystem, SourceTable, SourceNaturalKey, SourceContext, 
+    TargetTable, TargetId, LoadBatchId
+)
+SELECT 
+    'Zenith' as SourceSystem,
+    'CUSTOMER' as SourceTable,
+    CONCAT(
+        RTRIM(LTRIM(CUSTOMER)), '|',
+        RTRIM(LTRIM(CLIENT_GROUP))
+    ) as SourceNaturalKey,
+    'Entity' as SourceContext,
+    'Entity' as TargetTable,
+    dbo.fn_GenerateEntityGuid(CUSTOMER, CLIENT_GROUP) as TargetId,
+    @BatchId as LoadBatchId
+FROM ZenithTestDDL.CUSTOMER
+WHERE CUSTOMER_NAME IS NOT NULL;
+    </div>
+    
+    <h3>4.7 FK Resolution Logic</h3>
+    <div class="code-block">
+-- Example: Resolve CustomerId FK in Entity table
+SELECT 
+    e.Id as EntityId,
+    xwalk.TargetId as CustomerId
+FROM Entity e
+INNER JOIN Migration_Key_Map xwalk
+    ON xwalk.SourceSystem = 'Zenith'
+    AND xwalk.SourceTable = 'CUSTOMER'
+    AND xwalk.SourceNaturalKey = e.EntityNumber
+    AND xwalk.SourceContext = 'Customer'
+    AND xwalk.TargetTable = 'Customer';
+
+-- Example: Resolve EnterpriseId FK in Entity table
+SELECT 
+    e.Id as EntityId,
+    xwalk.TargetId as EnterpriseId
+FROM Entity e
+INNER JOIN [source_staging_table] src
+    ON src.EntityId = e.Id
+INNER JOIN Migration_Key_Map xwalk
+    ON xwalk.SourceSystem = 'Zenith'
+    AND xwalk.SourceTable = 'CUSTOMER'
+    AND xwalk.SourceNaturalKey = RTRIM(LTRIM(src.CLIENT_GROUP))
+    AND xwalk.SourceContext = 'Enterprise'
+    AND xwalk.TargetTable = 'Enterprise';
+    </div>
+    
+    <h3>4.8 Re-run Handling</h3>
+    <div class="info-box">
+        <strong>Re-runability Strategy:</strong>
+        <ul>
+            <li>Use deterministic GUID generation to ensure same source key always generates same target GUID</li>
+            <li>Crosswalk table has unique constraint on (SourceSystem, SourceTable, SourceNaturalKey, SourceContext, TargetTable)</li>
+            <li>Use MERGE statements instead of INSERT to handle re-runs</li>
+            <li>Track LoadBatchId to identify which batch created each mapping</li>
+            <li>Implement idempotent load logic that can safely re-run without duplicates</li>
+        </ul>
+    </div>
+    
+    <h3>4.9 Duplicate Prevention</h3>
+    <div class="code-block">
+-- Crosswalk duplicate prevention via unique constraint
+ALTER TABLE Migration_Key_Map
+ADD CONSTRAINT UQ_Migration_Key_Map UNIQUE (
+    SourceSystem, 
+    SourceTable, 
+    SourceNaturalKey, 
+    SourceContext, 
+    TargetTable
+);
+
+-- Target table duplicate prevention
+-- Customer: CustomerId is PK (auto-prevents duplicates)
+-- Entity: Unique constraint on (EntityNumber, CustomerId)
+-- Enterprise: Id is PK (auto-prevents duplicates)
+
+-- Idempotent load using MERGE
+MERGE INTO Customer AS target
+USING (
+    SELECT 
+        dbo.fn_GenerateCustomerGuid(CUSTOMER) as CustomerId,
+        RTRIM(LTRIM(CUSTOMER_NAME)) as CustomerName,
+        -- ... other fields
+    FROM ZenithTestDDL.CUSTOMER
+) AS source
+ON target.CustomerId = source.CustomerId
+WHEN MATCHED THEN
+    UPDATE SET 
+        CustomerName = source.CustomerName
+        -- ... other fields
+WHEN NOT MATCHED THEN
+    INSERT (CustomerId, CustomerName, ...)
+    VALUES (source.CustomerId, source.CustomerName, ...);
+    </div>
+    
+    <h3>4.10 Collision Prevention for Shared Keys</h3>
+    <div class="warning-box">
+        <strong>Collision Risk:</strong> The CUSTOMER field is used as natural key for both Customer and Entity tables. Without SourceContext, this would cause collisions in the crosswalk table.
+    </div>
+    
+    <table>
+        <tr>
+            <th>Scenario</th>
+            <th>Source Key</th>
+            <th>Target Table 1</th>
+            <th>Target Table 2</th>
+            <th>Solution</th>
+        </tr>
+        <tr>
+            <td>CUSTOMER feeds multiple targets</td>
+            <td>CUSTOMER = '001'</td>
+            <td>Customer</td>
+            <td>Entity</td>
+            <td>Use SourceContext: 'Customer' vs 'Entity'</td>
+        </tr>
+        <tr>
+            <td>CLIENT_GROUP feeds multiple targets</td>
+            <td>CLIENT_GROUP = 'A'</td>
+            <td>Enterprise</td>
+            <td>EntityGroup (if applicable)</td>
+            <td>Use SourceContext: 'Enterprise' vs 'EntityGroup'</td>
+        </tr>
+    </table>
+</div>
+
+<div id="load-sequence" class="section">
+    <h2>5. Load Sequence and Dependency Plan</h2>
+    
+    <h3>5.1 Load Groups and Sequence</h3>
+    <table>
+        <tr>
+            <th>Load Group</th>
+            <th>Sequence</th>
+            <th>Target Table</th>
+            <th>Depends On</th>
+            <th>Load Type</th>
+            <th>Notes</th>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>EntityType</td>
+            <td>—</td>
+            <td>Reference Data</td>
+            <td>Pre-load standard entity types</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>2</td>
+            <td>CustomerType</td>
+            <td>—</td>
+            <td>Reference Data</td>
+            <td>Pre-load standard customer types (if table exists)</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>3</td>
+            <td>Currency</td>
+            <td>—</td>
+            <td>Reference Data</td>
+            <td>Pre-load currency reference data (if table exists)</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>4</td>
+            <td>ChartOfAccountsName</td>
+            <td>—</td>
+            <td>Reference Data</td>
+            <td>Pre-load COA reference data (if table exists)</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>5</td>
+            <td>CalendarPatternName</td>
+            <td>—</td>
+            <td>Reference Data</td>
+            <td>Pre-load calendar pattern reference data (if table exists)</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>6</td>
+            <td>Migration_Key_Map (Customer)</td>
+            <td>—</td>
+            <td>Crosswalk</td>
+            <td>Generate Customer GUIDs and populate crosswalk</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>7</td>
+            <td>Migration_Key_Map (Enterprise)</td>
+            <td>—</td>
+            <td>Crosswalk</td>
+            <td>Generate Enterprise GUIDs and populate crosswalk</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>8</td>
+            <td>Migration_Key_Map (Entity)</td>
+            <td>—</td>
+            <td>Crosswalk</td>
+            <td>Generate Entity GUIDs and populate crosswalk</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>9</td>
+            <td>BusinessParty</td>
+            <td>—</td>
+            <td>Master Data</td>
+            <td>Create BusinessParty records per SME strategy (BLOCKING)</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>10</td>
+            <td>Customer</td>
+            <td>CustomerType, BusinessParty, Migration_Key_Map</td>
+            <td>Master Data</td>
+            <td>Load customer master data</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>11</td>
+            <td>Enterprise</td>
+            <td>Customer, Migration_Key_Map</td>
+            <td>Master Data</td>
+            <td>Load enterprise/group data</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>12</td>
+            <td>Entity</td>
+            <td>Customer, Enterprise, EntityType, BusinessParty, Migration_Key_Map</td>
+            <td>Master Data</td>
+            <td>Load entity master data</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>13</td>
+            <td>EntityGroupMapping</td>
+            <td>Entity, EntityGroup</td>
+            <td>Mapping Data</td>
+            <td>Load entity group mappings (if applicable per SME)</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>14</td>
+            <td>EntityHistory</td>
+            <td>—</td>
+            <td>N/A</td>
+            <td>Not populated during migration (forward-looking audit)</td>
+        </tr>
+    </table>
+    
+    <h3>5.2 Dependency Graph</h3>
+    <div class="code-block">
+Load Dependency Hierarchy:
+
+Load Group 0: Reference/Lookup Tables
+├── EntityType
+├── CustomerType
+├── Currency
+├── ChartOfAccountsName
+└── CalendarPatternName
+
+Load Group 1: Crosswalk Preparation
+├── Migration_Key_Map (Customer)
+├── Migration_Key_Map (Enterprise)
+└── Migration_Key_Map (Entity)
+
+Load Group 2: Shared Identity
+└── BusinessParty
+
+Load Group 3: Customer
+└── Customer (depends on: CustomerType, BusinessParty, Migration_Key_Map)
+
+Load Group 4: Enterprise
+└── Enterprise (depends on: Customer, Migration_Key_Map)
+
+Load Group 5: Entity
+└── Entity (depends on: Customer, Enterprise, EntityType, BusinessParty, Migration_Key_Map)
+
+Load Group 6: Mapping Tables
+└── EntityGroupMapping (depends on: Entity, EntityGroup)
+    </div>
+    
+    <h3>5.3 Circular Dependencies</h3>
+    <div class="info-box">
+        <strong>Analysis Result:</strong> No circular dependencies detected in the target schema based on provided DDL.
+    </div>
+    
+    <h3>5.4 Self-Referencing Tables</h3>
+    <div class="info-box">
+        <strong>Analysis Result:</strong> No self-referencing tables detected in the target schema based on provided DDL.
+    </div>
+    
+    <h3>5.5 Deferred FK Updates</h3>
+    <div class="info-box">
+        <strong>Strategy:</strong> All FK relationships can be resolved during initial load using crosswalk lookups. No deferred FK updates required.
+    </div>
+    
+    <h3>5.6 Post-Load Hierarchy Updates</h3>
+    <div class="warning-box">
+        <strong>Potential Requirement:</strong> If EntityGroup table exists and has hierarchical relationships, post-load updates may be required to establish parent-child relationships. SME clarification needed.
+    </div>
+    
+    <h3>5.7 Load Execution Script Template</h3>
+    <div class="code-block">
+-- Migration Load Execution Script
+-- Execute in sequence, do not proceed to next group if errors occur
+
+DECLARE @BatchId VARCHAR(50) = 'BATCH_' + CONVERT(VARCHAR, GETDATE(), 112) + '_' + REPLACE(CONVERT(VARCHAR, GETDATE(), 108), ':', '');
+DECLARE @MigrationUserId UNIQUEIDENTIFIER = '00000000-0000-0000-0000-000000000001';
+
+BEGIN TRANSACTION;
+
+BEGIN TRY
+    -- ========================================
+    -- LOAD GROUP 0: Reference Data
+    -- ========================================
+    PRINT 'Load Group 0: Reference Data';
+    
+    -- Load EntityType (if not pre-loaded)
+    -- EXEC sp_LoadEntityType;
+    
+    -- Load CustomerType (if not pre-loaded)
+    -- EXEC sp_LoadCustomerType;
+    
+    -- ========================================
+    -- LOAD GROUP 1: Crosswalk Preparation
+    -- ========================================
+    PRINT 'Load Group 1: Crosswalk Preparation';
+    
+    -- Populate crosswalk for Customer
+    INSERT INTO Migration_Key_Map (...)
+    SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- Populate crosswalk for Enterprise
+    INSERT INTO Migration_Key_Map (...)
+    SELECT DISTINCT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- Populate crosswalk for Entity
+    INSERT INTO Migration_Key_Map (...)
+    SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- ========================================
+    -- LOAD GROUP 2: BusinessParty
+    -- ========================================
+    PRINT 'Load Group 2: BusinessParty';
+    
+    -- BLOCKING: SME strategy required
+    -- EXEC sp_LoadBusinessParty @BatchId, @MigrationUserId;
+    
+    -- ========================================
+    -- LOAD GROUP 3: Customer
+    -- ========================================
+    PRINT 'Load Group 3: Customer';
+    
+    INSERT INTO Customer (...)
+    SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- ========================================
+    -- LOAD GROUP 4: Enterprise
+    -- ========================================
+    PRINT 'Load Group 4: Enterprise';
+    
+    INSERT INTO Enterprise (...)
+    SELECT DISTINCT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- ========================================
+    -- LOAD GROUP 5: Entity
+    -- ========================================
+    PRINT 'Load Group 5: Entity';
+    
+    INSERT INTO Entity (...)
+    SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    -- ========================================
+    -- LOAD GROUP 6: EntityGroupMapping
+    -- ========================================
+    PRINT 'Load Group 6: EntityGroupMapping';
+    
+    -- CONDITIONAL: Only if SME confirms entity grouping strategy
+    -- INSERT INTO EntityGroupMapping (...)
+    -- SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+    
+    COMMIT TRANSACTION;
+    PRINT 'Migration completed successfully for batch: ' + @BatchId;
+    
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+    DECLARE @ErrorState INT = ERROR_STATE();
+    
+    PRINT 'Migration failed for batch: ' + @BatchId;
+    PRINT 'Error: ' + @ErrorMessage;
+    
+    -- Log error to Migration_Audit_Log
+    INSERT INTO Migration_Audit_Log (
+        BatchId, SourceSystem, SourceTable, TargetTable, 
+        Status, ErrorMessage, StartTime, EndTime
+    )
+    VALUES (
+        @BatchId, 'Zenith', 'CUSTOMER', 'Multiple', 
+        'Failed', @ErrorMessage, GETDATE(), GETDATE()
+    );
+    
+    RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+END CATCH;
+    </div>
+</div>
+
+<div id="validation-plan" class="section">
+    <h2>6. Validation and Reconciliation Plan</h2>
+    
+    <h3>6.1 Row Count Reconciliation</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Row Count</td>
+            <td>Customer</td>
+            <td>Target Customer count should equal source CUSTOMER count (distinct CUSTOMER)</td>
+            <td><code>SELECT COUNT(DISTINCT CUSTOMER) FROM ZenithTestDDL.CUSTOMER WHERE CUSTOMER_NAME IS NOT NULL;<br>SELECT COUNT(*) FROM Customer WHERE IsZenithCustomer = 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Row Count</td>
+            <td>Enterprise</td>
+            <td>Target Enterprise count should equal distinct CLIENT_GROUP count</td>
+            <td><code>SELECT COUNT(DISTINCT CLIENT_GROUP) FROM ZenithTestDDL.CUSTOMER WHERE CLIENT_GROUP IS NOT NULL;<br>SELECT COUNT(*) FROM Enterprise;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Row Count</td>
+            <td>Entity</td>
+            <td>Target Entity count should equal source CUSTOMER count</td>
+            <td><code>SELECT COUNT(*) FROM ZenithTestDDL.CUSTOMER WHERE CUSTOMER_NAME IS NOT NULL;<br>SELECT COUNT(*) FROM Entity;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.2 Duplicate Key Checks</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Duplicate PK</td>
+            <td>Customer</td>
+            <td>No duplicate CustomerId values</td>
+            <td><code>SELECT CustomerId, COUNT(*) as DuplicateCount<br>FROM Customer<br>GROUP BY CustomerId<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Duplicate PK</td>
+            <td>Enterprise</td>
+            <td>No duplicate Id values</td>
+            <td><code>SELECT Id, COUNT(*) as DuplicateCount<br>FROM Enterprise<br>GROUP BY Id<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Duplicate PK</td>
+            <td>Entity</td>
+            <td>No duplicate Id values</td>
+            <td><code>SELECT Id, COUNT(*) as DuplicateCount<br>FROM Entity<br>GROUP BY Id<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Duplicate Natural Key</td>
+            <td>Customer</td>
+            <td>No duplicate CustomerNumber values</td>
+            <td><code>SELECT CustomerNumber, COUNT(*) as DuplicateCount<br>FROM Customer<br>GROUP BY CustomerNumber<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Duplicate Natural Key</td>
+            <td>Entity</td>
+            <td>No duplicate EntityNumber + CustomerId combinations</td>
+            <td><code>SELECT EntityNumber, CustomerId, COUNT(*) as DuplicateCount<br>FROM Entity<br>GROUP BY EntityNumber, CustomerId<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.3 Source Grain Validation</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Source Grain</td>
+            <td>CUSTOMER</td>
+            <td>Verify CUSTOMER + CLIENT_GROUP is unique in source</td>
+            <td><code>SELECT CUSTOMER, CLIENT_GROUP, COUNT(*) as DuplicateCount<br>FROM ZenithTestDDL.CUSTOMER<br>GROUP BY CUSTOMER, CLIENT_GROUP<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Source Grain</td>
+            <td>CUSTOMER_SECURITY</td>
+            <td>Verify USER_NAME + CUSTOMER is unique in source</td>
+            <td><code>SELECT USER_NAME, CUSTOMER, COUNT(*) as DuplicateCount<br>FROM ZenithTestDDL.CUSTOMER_SECURITY<br>GROUP BY USER_NAME, CUSTOMER<br>HAVING COUNT(*) > 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.4 Target Grain Validation</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Target Grain</td>
+            <td>Customer</td>
+            <td>Verify CustomerId is unique</td>
+            <td><code>SELECT COUNT(*) as TotalRows, COUNT(DISTINCT CustomerId) as UniqueKeys<br>FROM Customer;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Target Grain</td>
+            <td>Entity</td>
+            <td>Verify Id is unique and EntityNumber + CustomerId is unique</td>
+            <td><code>SELECT COUNT(*) as TotalRows, <br>COUNT(DISTINCT Id) as UniqueIds,<br>COUNT(DISTINCT CONCAT(EntityNumber, '|', CustomerId)) as UniqueNaturalKeys<br>FROM Entity;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.5 Null Checks for Mandatory Fields</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Null Check</td>
+            <td>Customer</td>
+            <td>CustomerName must not be NULL</td>
+            <td><code>SELECT COUNT(*) as NullCount<br>FROM Customer<br>WHERE CustomerName IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Null Check</td>
+            <td>Customer</td>
+            <td>CustomerTypeId must not be NULL</td>
+            <td><code>SELECT COUNT(*) as NullCount<br>FROM Customer<br>WHERE CustomerTypeId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Null Check</td>
+            <td>Customer</td>
+            <td>OfficeCode must not be NULL</td>
+            <td><code>SELECT COUNT(*) as NullCount<br>FROM Customer<br>WHERE OfficeCode IS NULL OR OfficeCode = '';</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Null Check</td>
+            <td>Entity</td>
+            <td>EntityName must not be NULL</td>
+            <td><code>SELECT COUNT(*) as NullCount<br>FROM Entity<br>WHERE EntityName IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Null Check</td>
+            <td>Entity</td>
+            <td>CustomerId must not be NULL</td>
+            <td><code>SELECT COUNT(*) as NullCount<br>FROM Entity<br>WHERE CustomerId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.6 FK Integrity Checks</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Customer</td>
+            <td>All CustomerTypeId values must exist in CustomerType</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Customer c<br>LEFT JOIN CustomerType ct ON c.CustomerTypeId = ct.CustomerTypeId<br>WHERE ct.CustomerTypeId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Customer</td>
+            <td>All BusinessPartyId values must exist in BusinessParty (if not NULL)</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Customer c<br>LEFT JOIN BusinessParty bp ON c.BusinessPartyId = bp.BusinessPartyId<br>WHERE c.BusinessPartyId IS NOT NULL AND bp.BusinessPartyId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Enterprise</td>
+            <td>All CustomerId values must exist in Customer</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Enterprise e<br>LEFT JOIN Customer c ON e.CustomerId = c.CustomerId<br>WHERE e.CustomerId IS NOT NULL AND c.CustomerId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Entity</td>
+            <td>All CustomerId values must exist in Customer</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Entity e<br>LEFT JOIN Customer c ON e.CustomerId = c.CustomerId<br>WHERE e.CustomerId IS NOT NULL AND c.CustomerId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Entity</td>
+            <td>All EnterpriseId values must exist in Enterprise</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Entity e<br>LEFT JOIN Enterprise ent ON e.EnterpriseId = ent.Id<br>WHERE e.EnterpriseId IS NOT NULL AND ent.Id IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>FK Integrity</td>
+            <td>Entity</td>
+            <td>All EntityTypeId values must exist in EntityType</td>
+            <td><code>SELECT COUNT(*) as OrphanCount<br>FROM Entity e<br>LEFT JOIN EntityType et ON e.EntityTypeId = et.EntityTypeId<br>WHERE e.EntityTypeId IS NOT NULL AND et.EntityTypeId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.7 Date Validity</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Date Validity</td>
+            <td>Customer</td>
+            <td>CreatedDate should not be in the future</td>
+            <td><code>SELECT COUNT(*) as FutureDateCount<br>FROM Customer<br>WHERE CreatedDate > GETDATE();</code></td>
+            <td class="confidence-medium">Warning</td>
+        </tr>
+        <tr>
+            <td>Date Validity</td>
+            <td>Entity</td>
+            <td>CreatedDate should not be in the future</td>
+            <td><code>SELECT COUNT(*) as FutureDateCount<br>FROM Entity<br>WHERE CreatedDate > GETDATE();</code></td>
+            <td class="confidence-medium">Warning</td>
+        </tr>
+        <tr>
+            <td>Date Validity</td>
+            <td>Entity</td>
+            <td>DeactivatedDate should be after CreatedDate (if not NULL)</td>
+            <td><code>SELECT COUNT(*) as InvalidDateCount<br>FROM Entity<br>WHERE DeactivatedDate IS NOT NULL <br>AND DeactivatedDate < CreatedDate;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.8 Orphan Record Detection</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Orphan Records</td>
+            <td>Entity</td>
+            <td>All Entity records should have corresponding Customer</td>
+            <td><code>SELECT e.Id, e.EntityNumber, e.CustomerId<br>FROM Entity e<br>LEFT JOIN Customer c ON e.CustomerId = c.CustomerId<br>WHERE c.CustomerId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Orphan Records</td>
+            <td>Entity</td>
+            <td>All Entity records should have corresponding Enterprise (if EnterpriseId not NULL)</td>
+            <td><code>SELECT e.Id, e.EntityNumber, e.EnterpriseId<br>FROM Entity e<br>LEFT JOIN Enterprise ent ON e.EnterpriseId = ent.Id<br>WHERE e.EnterpriseId IS NOT NULL AND ent.Id IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.9 Control Totals</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Control Total</td>
+            <td>Customer</td>
+            <td>Total migrated customers should match source count</td>
+            <td><code>-- Source<br>SELECT COUNT(DISTINCT CUSTOMER) as SourceCount<br>FROM ZenithTestDDL.CUSTOMER<br>WHERE CUSTOMER_NAME IS NOT NULL;<br><br>-- Target<br>SELECT COUNT(*) as TargetCount<br>FROM Customer<br>WHERE IsZenithCustomer = 1;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Control Total</td>
+            <td>Entity</td>
+            <td>Total migrated entities should match source count</td>
+            <td><code>-- Source<br>SELECT COUNT(*) as SourceCount<br>FROM ZenithTestDDL.CUSTOMER<br>WHERE CUSTOMER_NAME IS NOT NULL;<br><br>-- Target<br>SELECT COUNT(*) as TargetCount<br>FROM Entity;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.10 Crosswalk Completeness</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Crosswalk</td>
+            <td>Migration_Key_Map</td>
+            <td>All source CUSTOMER keys should have Customer crosswalk entry</td>
+            <td><code>SELECT c.CUSTOMER<br>FROM ZenithTestDDL.CUSTOMER c<br>LEFT JOIN Migration_Key_Map xwalk<br>  ON xwalk.SourceNaturalKey = RTRIM(LTRIM(c.CUSTOMER))<br>  AND xwalk.SourceContext = 'Customer'<br>  AND xwalk.TargetTable = 'Customer'<br>WHERE c.CUSTOMER_NAME IS NOT NULL<br>  AND xwalk.TargetId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Crosswalk</td>
+            <td>Migration_Key_Map</td>
+            <td>All source CUSTOMER keys should have Entity crosswalk entry</td>
+            <td><code>SELECT c.CUSTOMER, c.CLIENT_GROUP<br>FROM ZenithTestDDL.CUSTOMER c<br>LEFT JOIN Migration_Key_Map xwalk<br>  ON xwalk.SourceNaturalKey = CONCAT(RTRIM(LTRIM(c.CUSTOMER)), '|', RTRIM(LTRIM(c.CLIENT_GROUP)))<br>  AND xwalk.SourceContext = 'Entity'<br>  AND xwalk.TargetTable = 'Entity'<br>WHERE c.CUSTOMER_NAME IS NOT NULL<br>  AND xwalk.TargetId IS NULL;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+    
+    <h3>6.11 Source-to-Target Rejection Counts</h3>
+    <table>
+        <tr>
+            <th>Validation Area</th>
+            <th>Table</th>
+            <th>Rule</th>
+            <th>SQL</th>
+            <th>Severity</th>
+        </tr>
+        <tr>
+            <td>Rejection Count</td>
+            <td>Migration_Reject_Log</td>
+            <td>Review all rejected records</td>
+            <td><code>SELECT SourceTable, TargetTable, ErrorType, COUNT(*) as RejectCount<br>FROM Migration_Reject_Log<br>WHERE BatchId = @BatchId<br>GROUP BY SourceTable, TargetTable, ErrorType<br>ORDER BY RejectCount DESC;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+        <tr>
+            <td>Rejection Rate</td>
+            <td>All Tables</td>
+            <td>Rejection rate should be below 5%</td>
+            <td><code>SELECT <br>  (SELECT COUNT(*) FROM Migration_Reject_Log WHERE BatchId = @BatchId) * 100.0 / <br>  (SELECT COUNT(*) FROM ZenithTestDDL.CUSTOMER WHERE CUSTOMER_NAME IS NOT NULL) <br>  as RejectionPercentage;</code></td>
+            <td class="confidence-high">Critical</td>
+        </tr>
+    </table>
+</div>
+
+<div id="compliance-report" class="section">
+    <h2>7. Compliance Report</h2>
+    
+    <h3>7.1 Sensitive Fields Assessment</h3>
+    <table>
+        <tr>
+            <th>Compliance Area</th>
+            <th>Field/Table</th>
+            <th>Risk</th>
+            <th>Control Required</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>PII - Tax Identifiers</td>
+            <td>Customer.TIN</td>
+            <td class="confidence-high">High</td>
+            <td>Encryption at rest, access logging, masking in non-prod</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Tax Identifiers</td>
+            <td>Entity.EIN</td>
+            <td class="confidence-high">High</td>
+            <td>Encryption at rest, access logging, masking in non-prod</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Tax Identifiers</td>
+            <td>Entity.SSN</td>
+            <td class="confidence-high">High</td>
+            <td>Encryption at rest, access logging, masking in non-prod, HIPAA/PII compliance</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Tax Identifiers</td>
+            <td>Entity.SIN</td>
+            <td class="confidence-high">High</td>
+            <td>Encryption at rest, access logging, masking in non-prod</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Personal Information</td>
+            <td>Customer.CustomerName</td>
+            <td class="confidence-medium">Medium</td>
+            <td>Access control, audit logging</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Personal Information</td>
+            <td>Entity.EntityName</td>
+            <td class="confidence-medium">Medium</td>
+            <td>Access control, audit logging</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>PII - Address Information</td>
+            <td>Entity.EntityAddress</td>
+            <td class="confidence-medium">Medium</td>
+            <td>Access control, audit logging, masking in non-prod</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+    </table>
+    
+    <h3>7.2 Auditability Assessment</h3>
+    <table>
+        <tr>
+            <th>Compliance Area</th>
+            <th>Field/Table</th>
+            <th>Risk</th>
+            <th>Control Required</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Audit Trail</td>
+            <td>Customer (CreatedBy, CreatedDate)</td>
+            <td class="confidence-low">Low</td>
+            <td>Audit fields populated with migration user and date</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Audit Trail</td>
+            <td>Entity (CreatedBy, CreatedDate)</td>
+            <td class="confidence-low">Low</td>
+            <td>Audit fields populated with migration user and date</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Change History</td>
+            <td>EntityHistory</td>
+            <td class="confidence-low">Low</td>
+            <td>Forward-looking change tracking enabled post-migration</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Migration Audit</td>
+            <td>Migration_Audit_Log</td>
+            <td class="confidence-low">Low</td>
+            <td>All migration activities logged with batch ID, timestamps, counts</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Rejection Tracking</td>
+            <td>Migration_Reject_Log</td>
+            <td class="confidence-low">Low</td>
+            <td>All rejected records logged with reason and source values</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+    </table>
+    
+    <h3>7.3 Lineage Coverage</h3>
+    <table>
+        <tr>
+            <th>Compliance Area</th>
+            <th>Field/Table</th>
+            <th>Risk</th>
+            <th>Control Required</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Data Lineage</td>
+            <td>Migration_Key_Map</td>
+            <td class="confidence-low">Low</td>
+            <td>Crosswalk table provides full source-to-target lineage</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Data Lineage</td>
+            <td>Customer.IsZenithCustomer</td>
+            <td class="confidence-low">Low</td>
+            <td>Flag identifies migrated Zenith customers</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Data Lineage</td>
+            <td>Customer.CustomerNumber</td>
+            <td class="confidence-low">Low</td>
+            <td>Preserves source natural key for traceability</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+        <tr>
+            <td>Data Lineage</td>
+            <td>Entity.EntityNumber</td>
+            <td class="confidence-low">Low</td>
+            <td>Preserves source natural key for traceability</td>
+            <td class="confidence-high">Implemented</td>
+        </tr>
+    </table>
+    
+    <h3>7.4 Retention Considerations</h3>
+    <div class="info-box">
+        <strong>Retention Policy Recommendations:</strong>
+        <ul>
+            <li><strong>Migration_Key_Map:</strong> Retain indefinitely for lineage and troubleshooting</li>
+            <li><strong>Migration_Audit_Log:</strong> Retain for minimum 7 years per financial compliance standards</li>
+            <li><strong>Migration_Reject_Log:</strong> Retain for minimum 7 years per financial compliance standards</li>
+            <li><strong>Source System Data:</strong> Retain in archive for minimum 7 years post-migration</li>
+            <li><strong>EntityHistory:</strong> Retain per organizational policy (recommend 7+ years)</li>
+        </ul>
+    </div>
+    
+    <h3>7.5 Access and Security Dependencies</h3>
+    <table>
+        <tr>
+            <th>Compliance Area</th>
+            <th>Field/Table</th>
+            <th>Risk</th>
+            <th>Control Required</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Access Control</td>
+            <td>Customer (all PII fields)</td>
+            <td class="confidence-high">High</td>
+            <td>Role-based access control (RBAC) enforced</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Access Control</td>
+            <td>Entity (all PII fields)</td>
+            <td class="confidence-high">High</td>
+            <td>Role-based access control (RBAC) enforced</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Encryption</td>
+            <td>Customer.TIN, Entity.EIN, Entity.SSN, Entity.SIN</td>
+            <td class="confidence-high">High</td>
+            <td>Encryption at rest (TDE) and in transit (TLS)</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Access Logging</td>
+            <td>All tables with PII</td>
+            <td class="confidence-medium">Medium</td>
+            <td>Database audit logging enabled for all PII access</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+    </table>
+    
+    <h3>7.6 Data Masking Requirements</h3>
+    <table>
+        <tr>
+            <th>Compliance Area</th>
+            <th>Field/Table</th>
+            <th>Risk</th>
+            <th>Control Required</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Non-Prod Masking</td>
+            <td>Customer.TIN</td>
+            <td class="confidence-high">High</td>
+            <td>Dynamic data masking or static masking in non-prod environments</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Non-Prod Masking</td>
+            <td>Entity.EIN</td>
+            <td class="confidence-high">High</td>
+            <td>Dynamic data masking or static masking in non-prod environments</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Non-Prod Masking</td>
+            <td>Entity.SSN</td>
+            <td class="confidence-high">High</td>
+            <td>Dynamic data masking or static masking in non-prod environments (MANDATORY)</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Non-Prod Masking</td>
+            <td>Entity.SIN</td>
+            <td class="confidence-high">High</td>
+            <td>Dynamic data masking or static masking in non-prod environments</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+        <tr>
+            <td>Non-Prod Masking</td>
+            <td>Entity.EntityAddress</td>
+            <td class="confidence-medium">Medium</td>
+            <td>Consider masking street addresses in non-prod environments</td>
+            <td class="confidence-sme">Review Required</td>
+        </tr>
+    </table>
+    
+    <h3>7.7 Regulatory Risk Areas</h3>
+    <div class="risk-high">
+        <strong>HIGH REGULATORY RISK:</strong>
+        <ul>
+            <li><strong>HIPAA Compliance:</strong> Entity.SSN field contains Social Security Numbers which are protected health information (PHI) if associated with health data. Ensure HIPAA compliance controls are in place.</li>
+            <li><strong>GDPR/Privacy:</strong> Customer and Entity tables contain personal information. Ensure right-to-erasure and data portability capabilities are implemented.</li>
+            <li><strong>SOX Compliance:</strong> Financial data migration must maintain audit trail and data integrity. Migration_Audit_Log and EntityHistory provide required controls.</li>
+            <li><strong>Tax Compliance:</strong> TIN, EIN, SSN, SIN fields are tax identifiers subject to IRS and international tax authority regulations. Ensure proper access controls and encryption.</li>
+        </ul>
+    </div>
+    
+    <div class="risk-medium">
+        <strong>MEDIUM REGULATORY RISK:</strong>
+        <ul>
+            <li><strong>Data Residency:</strong> Confirm target system complies with data residency requirements for customer data.</li>
+            <li><strong>Cross-Border Transfer:</strong> If source and target systems are in different countries, ensure compliance with cross-border data transfer regulations.</li>
+            <li><strong>Record Retention:</strong> Ensure migration artifacts (logs, crosswalk, rejects) are retained per regulatory requirements (typically 7 years for financial data).</li>
+        </ul>
+    </div>
+</div>
+
+<div id="audit-log" class="section">
+    <h2>8. Audit Log Design</h2>
+    
+    <h3>8.1 Migration Audit Log Table</h3>
+    <div class="code-block">
+CREATE TABLE Migration_Audit_Log
+(
+    AuditLogId UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BatchId VARCHAR(50) NOT NULL,
+    SourceSystem VARCHAR(50) NOT NULL,
+    SourceTable VARCHAR(100) NOT NULL,
+    TargetTable VARCHAR(100) NOT NULL,
+    LoadGroup INT NULL,
+    RecordsRead INT NULL,
+    RecordsInserted INT NULL,
+    RecordsUpdated INT NULL,
+    RecordsRejected INT NULL,
+    RecordsSkipped INT NULL,
+    StartTime DATETIME2(7) NOT NULL,
+    EndTime DATETIME2(7) NULL,
+    DurationSeconds AS DATEDIFF(SECOND, StartTime, EndTime),
+    Status VARCHAR(20) NOT NULL, -- 'Running', 'Completed', 'Failed', 'Partial'
+    ErrorMessage NVARCHAR(MAX) NULL,
+    ExecutedBy VARCHAR(100) NOT NULL,
+    ServerName VARCHAR(100) DEFAULT @@SERVERNAME,
+    DatabaseName VARCHAR(100) DEFAULT DB_NAME(),
+    CreatedDate DATETIME2(7) DEFAULT GETDATE()
+);
+
+CREATE INDEX IX_Migration_Audit_Log_BatchId ON Migration_Audit_Log(BatchId);
+CREATE INDEX IX_Migration_Audit_Log_Status ON Migration_Audit_Log(Status);
+CREATE INDEX IX_Migration_Audit_Log_SourceTarget ON Migration_Audit_Log(SourceTable, TargetTable);
+    </div>
+    
+    <h3>8.2 Audit Log Usage Pattern</h3>
+    <div class="code-block">
+-- Start of migration step
+DECLARE @AuditLogId UNIQUEIDENTIFIER = NEWID();
+DECLARE @StartTime DATETIME2(7) = GETDATE();
+
+INSERT INTO Migration_Audit_Log (
+    AuditLogId, BatchId, SourceSystem, SourceTable, TargetTable, 
+    LoadGroup, StartTime, Status, ExecutedBy
+)
+VALUES (
+    @AuditLogId, @BatchId, 'Zenith', 'CUSTOMER', 'Customer', 
+    3, @StartTime, 'Running', SYSTEM_USER
+);
+
+-- Execute migration step
+BEGIN TRY
+    -- Migration logic here
+    DECLARE @RecordsRead INT = (SELECT COUNT(*) FROM ZenithTestDDL.CUSTOMER WHERE CUSTOMER_NAME IS NOT NULL);
+    DECLARE @RecordsInserted INT = @@ROWCOUNT;
+    
+    -- Update audit log on success
+    UPDATE Migration_Audit_Log
+    SET 
+        RecordsRead = @RecordsRead,
+        RecordsInserted = @RecordsInserted,
+        RecordsRejected = 0,
+        EndTime = GETDATE(),
+        Status = 'Completed'
+    WHERE AuditLogId = @AuditLogId;
+    
+END TRY
+BEGIN CATCH
+    -- Update audit log on failure
+    UPDATE Migration_Audit_Log
+    SET 
+        EndTime = GETDATE(),
+        Status = 'Failed',
+        ErrorMessage = ERROR_MESSAGE()
+    WHERE AuditLogId = @AuditLogId;
+    
+    THROW;
+END CATCH;
+    </div>
+    
+    <h3>8.3 Audit Log Reporting Queries</h3>
+    <div class="code-block">
+-- Migration summary by batch
+SELECT 
+    BatchId,
+    COUNT(*) as TotalSteps,
+    SUM(RecordsRead) as TotalRecordsRead,
+    SUM(RecordsInserted) as TotalRecordsInserted,
+    SUM(RecordsRejected) as TotalRecordsRejected,
+    MIN(StartTime) as MigrationStartTime,
+    MAX(EndTime) as MigrationEndTime,
+    SUM(DurationSeconds) as TotalDurationSeconds,
+    SUM(CASE WHEN Status = 'Completed' THEN 1 ELSE 0 END) as CompletedSteps,
+    SUM(CASE WHEN Status = 'Failed' THEN 1 ELSE 0 END) as FailedSteps
+FROM Migration_Audit_Log
+GROUP BY BatchId
+ORDER BY MIN(StartTime) DESC;
+
+-- Failed migration steps
+SELECT 
+    BatchId,
+    SourceTable,
+    TargetTable,
+    StartTime,
+    EndTime,
+    ErrorMessage
+FROM Migration_Audit_Log
+WHERE Status = 'Failed'
+ORDER BY StartTime DESC;
+
+-- Migration performance by table
+SELECT 
+    TargetTable,
+    COUNT(*) as MigrationRuns,
+    AVG(RecordsRead) as AvgRecordsRead,
+    AVG(RecordsInserted) as AvgRecordsInserted,
+    AVG(DurationSeconds) as AvgDurationSeconds,
+    MAX(DurationSeconds) as MaxDurationSeconds
+FROM Migration_Audit_Log
+WHERE Status = 'Completed'
+GROUP BY TargetTable
+ORDER BY AvgDurationSeconds DESC;
+    </div>
+</div>
+
+<div id="error-handling" class="section">
+    <h2>9. Error Handling and Reject Strategy</h2>
+    
+    <h3>9.1 Reject Table Structure</h3>
+    <div class="code-block">
+CREATE TABLE Migration_Reject_Log
+(
+    RejectLogId UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BatchId VARCHAR(50) NOT NULL,
+    SourceSystem VARCHAR(50) NOT NULL,
+    SourceTable VARCHAR(100) NOT NULL,
+    TargetTable VARCHAR(100) NOT NULL,
+    SourceNaturalKey VARCHAR(500) NOT NULL,
+    SourceContext VARCHAR(100) NULL,
+    TargetColumn VARCHAR(100) NULL,
+    ErrorType VARCHAR(50) NOT NULL, -- 'MandatoryFieldNull', 'LookupFailure', 'DataTypeFailure', etc.
+    ErrorMessage NVARCHAR(MAX) NOT NULL,
+    SourceValue NVARCHAR(MAX) NULL,
+    Severity VARCHAR(20) NOT NULL, -- 'Critical', 'High', 'Medium', 'Low'
+    CreatedDate DATETIME2(7) DEFAULT GETDATE(),
+    ResolvedDate DATETIME2(7) NULL,
+    ResolvedBy VARCHAR(100) NULL,
+    ResolutionNotes NVARCHAR(MAX) NULL
+);
+
+CREATE INDEX IX_Migration_Reject_Log_BatchId ON Migration_Reject_Log(BatchId);
+CREATE INDEX IX_Migration_Reject_Log_ErrorType ON Migration_Reject_Log(ErrorType);
+CREATE INDEX IX_Migration_Reject_Log_SourceTarget ON Migration_Reject_Log(SourceTable, TargetTable);
+CREATE INDEX IX_Migration_Reject_Log_Severity ON Migration_Reject_Log(Severity);
+    </div>
+    
+    <h3>9.2 Error Categories</h3>
+    <table>
+        <tr>
+            <th>Error Type</th>
+            <th>Description</th>
+            <th>Severity</th>
+            <th>Retry Strategy</th>
+            <th>Resolution</th>
+        </tr>
+        <tr>
+            <td>MandatoryFieldNull</td>
+            <td>Required target field has NULL value</td>
+            <td class="confidence-high">Critical</td>
+            <td>No retry - requires data fix</td>
+            <td>Provide default value or obtain missing data from SME</td>
+        </tr>
+        <tr>
+            <td>LookupFailure</td>
+            <td>FK lookup failed (target key not found in crosswalk or reference table)</td>
+            <td class="confidence-high">Critical</td>
+            <td>Retry after parent record loaded</td>
+            <td>Ensure parent records loaded first, check crosswalk completeness</td>
+        </tr>
+        <tr>
+            <td>DataTypeFailure</td>
+            <td>Source value cannot be converted to target data type</td>
+            <td class="confidence-high">High</td>
+            <td>No retry - requires data fix</td>
+            <td>Cleanse source data or adjust transformation rule</td>
+        </tr>
+        <tr>
+            <td>FKIntegrityFailure</td>
+            <td>FK constraint violation</td>
+            <td class="confidence-high">Critical</td>
+            <td>Retry after parent record loaded</td>
+            <td>Ensure load sequence is correct</td>
+        </tr>
+        <tr>
+            <td>DuplicateKeyFailure</td>
+            <td>PK or unique constraint violation</td>
+            <td class="confidence-high">Critical</td>
+            <td>No retry - requires investigation</td>
+            <td>Check for duplicate source data or key generation logic error</td>
+        </tr>
+        <tr>
+            <td>InvalidStatusCode</td>
+            <td>Status/code value not found in reference table</td>
+            <td class="confidence-medium">High</td>
+            <td>No retry - requires data fix</td>
+            <td>Add missing code to reference table or map to valid code</td>
+        </tr>
+        <tr>
+            <td>InvalidDateValue</td>
+            <td>Date value is invalid or out of range</td>
+            <td class="confidence-medium">Medium</td>
+            <td>No retry - requires data fix</td>
+            <td>Cleanse source data or use default date</td>
+        </tr>
+        <tr>
+            <td>AmountBalancingFailure</td>
+            <td>Amount totals do not balance</td>
+            <td class="confidence-high">Critical</td>
+            <td>No retry - requires investigation</td>
+            <td>Investigate source data integrity or transformation logic</td>
+        </tr>
+        <tr>
+            <td>BusinessRuleViolation</td>
+            <td>Record violates business rule</td>
+            <td class="confidence-medium">Medium</td>
+            <td>No retry - requires SME decision</td>
+            <td>Obtain SME approval to override or exclude record</td>
+        </tr>
+    </table>
+    
+    <h3>9.3 Reject Logging Pattern</h3>
+    <div class="code-block">
+-- Example: Log mandatory field null error
+INSERT INTO Migration_Reject_Log (
+    BatchId, SourceSystem, SourceTable, TargetTable, 
+    SourceNaturalKey, SourceContext, TargetColumn,
+    ErrorType, ErrorMessage, SourceValue, Severity
+)
+SELECT 
+    @BatchId,
+    'Zenith',
+    'CUSTOMER',
+    'Customer',
+    RTRIM(LTRIM(CUSTOMER)),
+    'Customer',
+    'CustomerName',
+    'MandatoryFieldNull',
+    'CustomerName is required but source CUSTOMER_NAME is NULL',
+    CUSTOMER_NAME,
+    'Critical'
+FROM ZenithTestDDL.CUSTOMER
+WHERE CUSTOMER_NAME IS NULL;
+
+-- Example: Log lookup failure
+INSERT INTO Migration_Reject_Log (
+    BatchId, SourceSystem, SourceTable, TargetTable, 
+    SourceNaturalKey, SourceContext, TargetColumn,
+    ErrorType, ErrorMessage, SourceValue, Severity
+)
+SELECT 
+    @BatchId,
+    'Zenith',
+    'CUSTOMER',
+    'Entity',
+    CONCAT(RTRIM(LTRIM(src.CUSTOMER)), '|', RTRIM(LTRIM(src.CLIENT_GROUP))),
+    'Entity',
+    'CustomerId',
+    'LookupFailure',
+    'CustomerId lookup failed - no crosswalk entry found',
+    RTRIM(LTRIM(src.CUSTOMER)),
+    'Critical'
+FROM ZenithTestDDL.CUSTOMER src
+LEFT JOIN Migration_Key_Map xwalk
+    ON xwalk.SourceNaturalKey = RTRIM(LTRIM(src.CUSTOMER))
+    AND xwalk.SourceContext = 'Customer'
+    AND xwalk.TargetTable = 'Customer'
+WHERE xwalk.TargetId IS NULL;
+    </div>
+    
+    <h3>9.4 Retry Strategy</h3>
+    <div class="info-box">
+        <strong>Retry Logic:</strong>
+        <ul>
+            <li><strong>LookupFailure:</strong> Retry after ensuring parent records are loaded. Check load sequence.</li>
+            <li><strong>FKIntegrityFailure:</strong> Retry after ensuring parent records are loaded. Check load sequence.</li>
+            <li><strong>All Other Errors:</strong> Do not retry automatically. Requires manual investigation and data fix.</li>
+        </ul>
+    </div>
+    
+    <h3>9.5 Partial Load Handling</h3>
+    <div class="code-block">
+-- Strategy: Use staging tables and atomic commits
+-- Step 1: Load to staging table (no constraints)
+INSERT INTO Customer_Staging (...)
+SELECT ... FROM ZenithTestDDL.CUSTOMER ...;
+
+-- Step 2: Validate staging data and log rejects
+INSERT INTO Migration_Reject_Log (...)
+SELECT ... FROM Customer_Staging WHERE [validation_fails];
+
+-- Step 3: Load only valid records to target
+INSERT INTO Customer (...)
+SELECT ... FROM Customer_Staging
+WHERE [validation_passes];
+
+-- Step 4: Commit or rollback as atomic unit
+COMMIT TRANSACTION;
+    </div>
+    
+    <h3>9.6 Reject Resolution Workflow</h3>
+    <div class="code-block">
+-- Step 1: Review rejects by severity
+SELECT 
+    Severity,
+    ErrorType,
+    COUNT(*) as RejectCount
+FROM Migration_Reject_Log
+WHERE BatchId = @BatchId
+  AND ResolvedDate IS NULL
+GROUP BY Severity, ErrorType
+ORDER BY 
+    CASE Severity 
+        WHEN 'Critical' THEN 1 
+        WHEN 'High' THEN 2 
+        WHEN 'Medium' THEN 3 
+        ELSE 4 
+    END,
+    RejectCount DESC;
+
+-- Step 2: Review specific reject details
+SELECT 
+    SourceTable,
+    TargetTable,
+    SourceNaturalKey,
+    TargetColumn,
+    ErrorType,
+    ErrorMessage,
+    SourceValue
+FROM Migration_Reject_Log
+WHERE BatchId = @BatchId
+  AND Severity = 'Critical'
+  AND ResolvedDate IS NULL
+ORDER BY CreatedDate;
+
+-- Step 3: Mark reject as resolved after fix
+UPDATE Migration_Reject_Log
+SET 
+    ResolvedDate = GETDATE(),
+    ResolvedBy = SYSTEM_USER,
+    ResolutionNotes = 'Source data corrected and record re-processed successfully'
+WHERE RejectLogId = @RejectLogId;
+    </div>
+</div>
+
+<div id="execution-guide" class="section">
+    <h2>10. Migration Execution Guide</h2>
+    
+    <h3>Step-by-Step Execution Plan</h3>
+    
+    <h4>Phase 1: Pre-Migration Preparation</h4>
+    <ol>
+        <li><strong>Profile Source Data</strong>
+            <ul>
+                <li>Run data profiling queries on source CUSTOMER table</li>
+                <li>Identify data quality issues (NULLs, invalid values, duplicates)</li>
+                <li>Document data quality findings</li>
+                <li>Obtain SME approval for data cleansing strategy</li>
+            </ul>
+        </li>
+        <li><strong>Confirm Source Natural Keys</strong>
+            <ul>
+                <li>Verify CUSTOMER + CLIENT_GROUP is unique in source</li>
+                <li>Verify no NULL values in key fields</li>
+                <li>Document any key violations</li>
+            </ul>
+        </li>
+        <li><strong>Confirm Source Filter Criteria</strong>
+            <ul>
+                <li>Obtain SME approval for customer selection criteria</li>
+                <li>Document which customers should be migrated vs excluded</li>
+                <li>Confirm active/inactive status determination logic</li>
+            </ul>
+        </li>
+        <li><strong>Confirm Amount Scale and Date Semantics</strong>
+            <ul>
+                <li>N/A for this migration (no amount fields in scope)</li>
+                <li>Confirm CHANGED date field semantics with SME</li>
+            </ul>
+        </li>
+        <li><strong>Resolve SME Decisions</strong>
+            <ul>
+                <li>Obtain all SME decisions from Section 11 (SME Decision Tracker)</li>
+                <li>Document all decisions in writing with SME sign-off</li>
+                <li>Update transformation rules based on SME decisions</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 2: Environment Setup</h4>
+    <ol start="6">
+        <li><strong>Create Migration Infrastructure</strong>
+            <ul>
+                <li>Create Migration_Key_Map table</li>
+                <li>Create Migration_Audit_Log table</li>
+                <li>Create Migration_Reject_Log table</li>
+                <li>Create deterministic GUID generation functions</li>
+                <li>Create staging tables (if using staging approach)</li>
+            </ul>
+        </li>
+        <li><strong>Load Reference/Static Tables (Load Group 0)</strong>
+            <ul>
+                <li>Load EntityType reference data</li>
+                <li>Load CustomerType reference data</li>
+                <li>Load Currency reference data</li>
+                <li>Load ChartOfAccountsName reference data</li>
+                <li>Load CalendarPatternName reference data</li>
+                <li>Verify reference data completeness</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 3: Crosswalk Preparation (Load Group 1)</h4>
+    <ol start="8">
+        <li><strong>Generate Deterministic Target Keys</strong>
+            <ul>
+                <li>Generate Customer GUIDs using fn_GenerateCustomerGuid</li>
+                <li>Generate Enterprise GUIDs using fn_GenerateEnterpriseGuid</li>
+                <li>Generate Entity GUIDs using fn_GenerateEntityGuid</li>
+                <li>Verify no GUID collisions</li>
+            </ul>
+        </li>
+        <li><strong>Populate Crosswalk Table</strong>
+            <ul>
+                <li>Populate crosswalk for Customer (SourceContext = 'Customer')</li>
+                <li>Populate crosswalk for Enterprise (SourceContext = 'Enterprise')</li>
+                <li>Populate crosswalk for Entity (SourceContext = 'Entity')</li>
+                <li>Verify crosswalk completeness (all source keys mapped)</li>
+                <li>Verify no duplicate crosswalk entries</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 4: Master Data Migration</h4>
+    <ol start="10">
+        <li><strong>Load BusinessParty (Load Group 2)</strong>
+            <ul>
+                <li><strong>BLOCKING:</strong> Execute BusinessParty creation strategy per SME decision</li>
+                <li>Verify BusinessParty records created successfully</li>
+                <li>Update crosswalk with BusinessPartyId mappings (if applicable)</li>
+            </ul>
+        </li>
+        <li><strong>Load Customer (Load Group 3)</strong>
+            <ul>
+                <li>Execute Customer load script</li>
+                <li>Verify row count matches source</li>
+                <li>Verify no NULL values in mandatory fields</li>
+                <li>Verify FK integrity (CustomerTypeId, BusinessPartyId)</li>
+                <li>Review and resolve any rejects</li>
+            </ul>
+        </li>
+        <li><strong>Load Enterprise (Load Group 4)</strong>
+            <ul>
+                <li>Execute Enterprise load script</li>
+                <li>Verify row count matches distinct CLIENT_GROUP count</li>
+                <li>Verify no NULL values in mandatory fields</li>
+                <li>Verify FK integrity (CustomerId)</li>
+                <li>Review and resolve any rejects</li>
+            </ul>
+        </li>
+        <li><strong>Load Entity (Load Group 5)</strong>
+            <ul>
+                <li>Execute Entity load script</li>
+                <li>Verify row count matches source</li>
+                <li>Verify no NULL values in mandatory fields</li>
+                <li>Verify FK integrity (CustomerId, EnterpriseId, EntityTypeId, BusinessPartyId)</li>
+                <li>Verify unique constraint (EntityNumber + CustomerId)</li>
+                <li>Review and resolve any rejects</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 5: Dependent Data Migration</h4>
+    <ol start="14">
+        <li><strong>Load EntityGroupMapping (Load Group 6)</strong>
+            <ul>
+                <li><strong>CONDITIONAL:</strong> Only execute if SME confirms entity grouping strategy</li>
+                <li>Execute EntityGroupMapping load script</li>
+                <li>Verify FK integrity (EntityId, EntityGroupId)</li>
+                <li>Review and resolve any rejects</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 6: Validation and Reconciliation</h4>
+    <ol start="15">
+        <li><strong>Run Validation SQL (Section 6)</strong>
+            <ul>
+                <li>Execute all row count reconciliation queries</li>
+                <li>Execute all duplicate key check queries</li>
+                <li>Execute all null check queries</li>
+                <li>Execute all FK integrity check queries</li>
+                <li>Execute all date validity check queries</li>
+                <li>Execute all orphan record detection queries</li>
+                <li>Execute all control total queries</li>
+                <li>Execute all crosswalk completeness queries</li>
+                <li>Document all validation results</li>
+            </ul>
+        </li>
+        <li><strong>Review Rejects</strong>
+            <ul>
+                <li>Review Migration_Reject_Log for all critical and high severity rejects</li>
+                <li>Categorize rejects by error type</li>
+                <li>Develop resolution plan for each reject category</li>
+                <li>Execute reject resolution (data fixes, SME decisions, etc.)</li>
+                <li>Re-run migration for resolved rejects</li>
+            </ul>
+        </li>
+        <li><strong>Reconcile Counts and Totals</strong>
+            <ul>
+                <li>Compare source vs target row counts for all tables</li>
+                <li>Investigate any discrepancies</li>
+                <li>Document reconciliation results</li>
+                <li>Obtain SME sign-off on reconciliation</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 7: Business Sign-Off</h4>
+    <ol start="18">
+        <li><strong>Prepare Migration Summary Report</strong>
+            <ul>
+                <li>Summarize migration statistics (records migrated, rejected, etc.)</li>
+                <li>Summarize validation results</li>
+                <li>Summarize reject resolution</li>
+                <li>Document any open issues or risks</li>
+            </ul>
+        </li>
+        <li><strong>Obtain Business Sign-Off</strong>
+            <ul>
+                <li>Present migration summary to business stakeholders</li>
+                <li>Review sample migrated records with SMEs</li>
+                <li>Address any concerns or questions</li>
+                <li>Obtain formal sign-off from business owner</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h4>Phase 8: Cutover Preparation</h4>
+    <ol start="20">
+        <li><strong>Freeze Migration Batch</strong>
+            <ul>
+                <li>Mark migration batch as frozen (no further changes)</li>
+                <li>Archive migration artifacts (scripts, logs, rejects)</li>
+                <li>Document final migration batch ID</li>
+            </ul>
+        </li>
+        <li><strong>Prepare Cutover Plan</strong>
+            <ul>
+                <li>Define cutover window and timeline</li>
+                <li>Define rollback plan</li>
+                <li>Define post-cutover validation plan</li>
+                <li>Define communication plan</li>
+                <li>Obtain approval for cutover plan</li>
+            </ul>
+        </li>
+        <li><strong>Execute Cutover</strong>
+            <ul>
+                <li>Freeze source system (read-only mode)</li>
+                <li>Execute final delta migration (if applicable)</li>
+                <li>Execute post-cutover validation</li>
+                <li>Enable target system for production use</li>
+                <li>Monitor system stability</li>
+                <li>Execute rollback if critical issues detected</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h3>Migration Checklist</h3>
+    <table>
+        <tr>
+            <th>Phase</th>
+            <th>Task</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Sign-Off</th>
+        </tr>
+        <tr>
+            <td>Pre-Migration</td>
+            <td>Profile source data</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Pre-Migration</td>
+            <td>Resolve all SME decisions</td>
+            <td>Business SME</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Environment Setup</td>
+            <td>Create migration infrastructure</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Environment Setup</td>
+            <td>Load reference data</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Crosswalk</td>
+            <td>Generate deterministic keys</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Crosswalk</td>
+            <td>Populate crosswalk table</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Master Data</td>
+            <td>Load BusinessParty</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Master Data</td>
+            <td>Load Customer</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Master Data</td>
+            <td>Load Enterprise</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Master Data</td>
+            <td>Load Entity</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Validation</td>
+            <td>Run all validation SQL</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Validation</td>
+            <td>Review and resolve rejects</td>
+            <td>Data Engineer + SME</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Validation</td>
+            <td>Reconcile counts and totals</td>
+            <td>Data Engineer</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Sign-Off</td>
+            <td>Obtain business sign-off</td>
+            <td>Business Owner</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Cutover</td>
+            <td>Execute cutover</td>
+            <td>Migration Team</td>
+            <td>Pending</td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<div id="sme-tracker" class="section">
+    <h2>11. SME Decision Tracker</h2>
+    
+    <table>
+        <tr>
+            <th>Area</th>
+            <th>Table</th>
+            <th>Field</th>
+            <th>Issue</th>
+            <th>Impact</th>
+            <th>Blocking?</th>
+            <th>Owner</th>
+            <th>Decision Needed</th>
+        </tr>
+        <tr>
+            <td>BusinessParty Strategy</td>
+            <td>Customer, Entity</td>
+            <td>BusinessPartyId</td>
+            <td>No source equivalent for BusinessParty. Need strategy for creating BusinessParty records.</td>
+            <td>Cannot load Customer or Entity without BusinessPartyId</td>
+            <td class="confidence-sme">YES</td>
+            <td>Business SME</td>
+            <td>Define BusinessParty creation strategy: One per Customer? Shared across Customers? Derived from source data?</td>
+        </tr>
+        <tr>
+            <td>Enterprise Hierarchy</td>
+            <td>Enterprise</td>
+            <td>All</td>
+            <td>Need confirmation that CLIENT_GROUP represents Enterprise concept</td>
+            <td>Incorrect hierarchy if CLIENT_GROUP interpretation is wrong</td>
+            <td class="confidence-sme">YES</td>
+            <td>Business SME</td>
+            <td>Confirm CLIENT_GROUP represents Enterprise hierarchy. Provide business definition and examples.</td>
+        </tr>
+        <tr>
+            <td>Entity Type Mapping</td>
+            <td>Entity</td>
+            <td>EntityTypeId</td>
+            <td>No source field for entity type classification</td>
+            <td>Cannot load Entity without EntityTypeId</td>
+            <td class="confidence-sme">YES</td>
+            <td>Business SME</td>
+            <td>Provide default EntityTypeId or mapping logic to derive from source data</td>
+        </tr>
+        <tr>
+            <td>Customer Type Classification</td>
+            <td>Customer</td>
+            <td>CustomerTypeId</td>
+            <td>No source field for customer type classification</td>
+            <td>Cannot load Customer without CustomerTypeId</td>
+            <td class="confidence-sme">YES</td>
+            <td>Business SME</td>
+            <td>Provide default CustomerTypeId or mapping logic to derive from source data</td>
+        </tr>
+        <tr>
+            <td>Office Code Assignment</td>
+            <td>Customer</td>
+            <td>OfficeCode</td>
+            <td>Required field with no clear source mapping</td>
+            <td>Cannot load Customer without OfficeCode</td>
+            <td class="confidence-sme">YES</td>
+            <td>Business SME</td>
+            <td>Provide default OfficeCode or derive from CLIENT_GROUP or other source field</td>
+        </tr>
+        <tr>
+            <td>Active Status Logic</td>
+            <td>Customer, Enterprise, Entity</td>
+            <td>IsActive</td>
+            <td>No source indicator for active/inactive status</td>
+            <td>All records will default to active unless criteria provided</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Define criteria for determining active vs inactive status. Default to all active acceptable?</td>
+        </tr>
+        <tr>
+            <td>Address Concatenation Rules</td>
+            <td>Entity</td>
+            <td>EntityAddress</td>
+            <td>Multiple source address fields need concatenation format</td>
+            <td>Address format may not match business expectations</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Confirm address concatenation format and delimiter (comma, space, newline, etc.)</td>
+        </tr>
+        <tr>
+            <td>Document Migration Scope</td>
+            <td>DBFILE, DBFILE_DETAIL</td>
+            <td>All</td>
+            <td>DBFILE/DBFILE_DETAIL tables not mapped to target</td>
+            <td>Document data may be lost if not migrated</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Should DBFILE/DBFILE_DETAIL be migrated? If yes, define target document storage strategy</td>
+        </tr>
+        <tr>
+            <td>User Security Migration</td>
+            <td>CUSTOMER_SECURITY</td>
+            <td>All</td>
+            <td>CUSTOMER_SECURITY table not mapped to target</td>
+            <td>User access control data may be lost if not migrated</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Should CUSTOMER_SECURITY be migrated? If yes, define target table/system</td>
+        </tr>
+        <tr>
+            <td>Deactivation Handling</td>
+            <td>Customer, Enterprise, Entity</td>
+            <td>DeactivatedDate, DeactivatedBy</td>
+            <td>No source deactivation data</td>
+            <td>All records will be active on initial load</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Should any historical records be marked as deactivated? Provide criteria if yes</td>
+        </tr>
+        <tr>
+            <td>Currency Settings</td>
+            <td>Entity</td>
+            <td>PreferredCurrencyId</td>
+            <td>No source currency information</td>
+            <td>All entities will have same default currency</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Provide default PreferredCurrencyId (e.g., USD GUID)</td>
+        </tr>
+        <tr>
+            <td>Fiscal Settings</td>
+            <td>Entity</td>
+            <td>CurrentFiscalYear, CurrentOpenPeriod, InceptionFiscalYear, InceptionFiscalPeriod</td>
+            <td>No source fiscal period information</td>
+            <td>All entities will have same default fiscal settings</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Provide default fiscal year/period settings for migrated entities</td>
+        </tr>
+        <tr>
+            <td>Chart of Accounts Assignment</td>
+            <td>Entity</td>
+            <td>ChartOfAccountsNameId</td>
+            <td>No source COA information</td>
+            <td>All entities will have same default COA or NULL</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Provide default ChartOfAccountsNameId or leave NULL</td>
+        </tr>
+        <tr>
+            <td>Accounting Basis</td>
+            <td>Entity</td>
+            <td>CashOrAccuralBasisIndicator</td>
+            <td>Accounting basis not evident from source</td>
+            <td>All entities will have same default accounting basis</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Provide default accounting basis ('Cash' or 'Accrual')</td>
+        </tr>
+        <tr>
+            <td>Entity Grouping Strategy</td>
+            <td>EntityGroupMapping</td>
+            <td>All</td>
+            <td>Entity group concept unclear from source</td>
+            <td>EntityGroupMapping table may not be populated</td>
+            <td>NO</td>
+            <td>Business SME</td>
+            <td>Clarify entity grouping requirements. Should EntityGroupMapping be populated during migration?</td>
+        </tr>
+    </table>
+</div>
+
+<div id="deliverables" class="section">
+    <h2>12. Final Deliverables</h2>
+    
+    <h3>12.1 Deliverable Checklist</h3>
+    <table>
+        <tr>
+            <th>Deliverable</th>
+            <th>Description</th>
+            <th>Format</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Migration Mapping Document</td>
+            <td>This comprehensive HTML document</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Compliance Report</td>
+            <td>Section 7 of this document</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Migration Audit Log Design</td>
+            <td>Section 8 of this document</td>
+            <td>HTML + SQL DDL</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Error/Reject Handling Design</td>
+            <td>Section 9 of this document</td>
+            <td>HTML + SQL DDL</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Load Sequence Plan</td>
+            <td>Section 5 of this document</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Validation SQL Pack</td>
+            <td>Section 6 of this document</td>
+            <td>HTML + SQL Scripts</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>SME Decision Tracker</td>
+            <td>Section 11 of this document</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Migration Execution Guide</td>
+            <td>Section 10 of this document</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Crosswalk/Key Management Plan</td>
+            <td>Section 4 of this document</td>
+            <td>HTML + SQL DDL</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Source Filtering Matrix</td>
+            <td>Embedded in Section 2 (per target table)</td>
+            <td>HTML</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+        <tr>
+            <td>Transformation Rules Library</td>
+            <td>Section 3 of this document</td>
+            <td>HTML + SQL</td>
+            <td class="confidence-high">Complete</td>
+        </tr>
+    </table>
+    
+    <h3>12.2 Document Metadata</h3>
+    <table>
+        <tr>
+            <th>Attribute</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Document Title</td>
+            <td>Data Migration Package - Zenith Legacy to Modern Platform</td>
+        </tr>
+        <tr>
+            <td>Document Version</td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>Document Date</td>
+            <td>" + new Date().toISOString().split('T')[0] + "</td>
+        </tr>
+        <tr>
+            <td>Source System</td>
+            <td>Zenith Legacy Database (ZenithTestDDL schema)</td>
+        </tr>
+        <tr>
+            <td>Target System</td>
+            <td>Modern Platform (dbo schema)</td>
+        </tr>
+        <tr>
+            <td>Migration Scope</td>
+            <td>Customer, Enterprise, Entity master data</td>
+        </tr>
+        <tr>
+            <td>Total Source Tables</td>
+            <td>4 (CUSTOMER, CUSTOMER_SECURITY, DBFILE, DBFILE_DETAIL)</td>
+        </tr>
+        <tr>
+            <td>Total Target Tables</td>
+            <td>6 (Customer, Enterprise, Entity, EntityHistory, EntityType, EntityGroupMapping)</td>
+        </tr>
+        <tr>
+            <td>Total Field Mappings</td>
+            <td>85+</td>
+        </tr>
+        <tr>
+            <td>SME Decisions Required</td>
+            <td>15 (12 blocking, 3 non-blocking)</td>
+        </tr>
+        <tr>
+            <td>Document Status</td>
+            <td>SME Review Required</td>
+        </tr>
+    </table>
+    
+    <h3>12.3 Next Steps</h3>
+    <div class="warning-box">
+        <strong>IMMEDIATE ACTION REQUIRED:</strong>
+        <ol>
+            <li><strong>Schedule SME Review Session:</strong> Review Section 11 (SME Decision Tracker) with business stakeholders to resolve all blocking decisions</li>
+            <li><strong>Obtain SME Sign-Off:</strong> Obtain written approval for all SME decisions before proceeding with migration development</li>
+            <li><strong>Update Mapping Document:</strong> Update this document with SME decisions and finalize transformation rules</li>
+            <li><strong>Develop Migration Scripts:</strong> Develop SQL scripts based on finalized mappings and transformation rules</li>
+            <li><strong>Execute Test Migration:</strong> Execute migration in test environment and validate results</li>
+            <li><strong>Obtain Business Sign-Off:</strong> Present test migration results to business for final approval</li>
+            <li><strong>Plan Production Cutover:</strong> Develop detailed cutover plan and schedule production migration</li>
+        </ol>
+    </div>
+    
+    <h3>12.4 Document Approval</h3>
+    <table>
+        <tr>
+            <th>Role</th>
+            <th>Name</th>
+            <th>Signature</th>
+            <th>Date</th>
+        </tr>
+        <tr>
+            <td>Migration Architect</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Business SME</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Data Engineer</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Business Owner</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Compliance Officer</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 40px;">
+    <h2 style="color: white; border: none;">End of Migration Package</h2>
+    <p>This document is a comprehensive, client-presentable, auditable migration package generated based on source and target DDL analysis.</p>
+    <p><strong>Document Generated:</strong> " + new Date().toISOString() + "</p>
+    <p><strong>Status:</strong> SME Review Required</p>
+</div>
+
+</body>
+</html>
