@@ -1,0 +1,272 @@
+<html>
+<head>
+<title>Database Schema Migration Package</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2, h3 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .summary, .risk { background-color: #f9f9f9; padding: 15px; border-left: 5px solid #007bff; }
+    .blocking { color: red; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Database Migration Package: AcquiredCompany to CoreCompany</h1>
+
+<section id="executive-summary">
+    <h2>1. Executive Summary</h2>
+    <div class="summary">
+        <p><strong>Migration Objective:</strong> To migrate customer and entity data from the legacy `AcquiredCompany` database schema to the new `CoreCompany` strategic platform. This migration is critical for consolidating customer relationship management and financial entity tracking into a single, modern system.</p>
+        <p><strong>Scope:</strong> This document covers the schema analysis, mapping, and migration strategy for the `Customer` and `Entity` domains.</p>
+        <p><strong>Source System:</strong> AcquiredCompany (SQL Server)</p>
+        <p><strong>Target System:</strong> CoreCompany (SQL Server)</p>
+        <p><strong>Total Tables Analyzed:</strong> 5 (Source), 6 (Target)</p>
+        <p><strong>Total Mappings Generated:</strong> 25+</p>
+        <p><strong>Mapping Confidence Summary:</strong></p>
+        <ul>
+            <li><strong>High / Direct:</strong> 5</li>
+            <li><strong>Medium / Derived / Lookup:</strong> 15</li>
+            <li><strong>Low / Not Available:</strong> 3</li>
+            <li><strong>SME Required:</strong> 8</li>
+        </ul>
+        <h3>Key Migration Risks</h3>
+        <ul>
+            <li><strong>Data Quality in Source:</strong> The source schema uses `char` for most fields, which may contain inconsistent spacing and formatting. Extensive use of `TRIM` and data cleansing rules will be necessary.</li>
+            <li><strong>Natural Key Ambiguity:</strong> The source `CUSTOMER` table has a composite primary key (`CUSTOMER`, `CLIENT_GROUP`). The business meaning of `CLIENT_GROUP` is not clear and requires SME input to ensure correct grouping into the target `Enterprise` or `Customer` objects.</li>
+            <li><strong>Missing Foreign Keys:</strong> The source DDL lacks declared foreign key constraints, increasing the risk of orphaned records. Validation SQL must be robust.</li>
+        </ul>
+        <h3>Key Assumptions</h3>
+        <ul>
+            <li>The source `CUSTOMER` table represents the primary business relationship and will be the main source for the target `Customer` table.</li>
+            <li>The combination of `CUSTOMER` and `CLIENT_GROUP` from the source `CUSTOMER` table uniquely identifies a business entity that can be mapped to a target `Entity`.</li>
+            <li>All target `uniqueidentifier` keys will be newly generated and managed via a crosswalk table.</li>
+        </ul>
+        <h3>Key SME Decisions Required</h3>
+        <ul>
+            <li>Clarification of the business purpose of `CLIENT_GROUP` in the `CUSTOMER` table.</li>
+            <li>Default values for mandatory target fields like `IsActive`, `CustomerTypeId`, and `OfficeCode`.</li>
+            <li>Transformation logic for constructing `EntityAddress` from multiple source address fields.</li>
+        </ul>
+    </div>
+</section>
+
+<section id="target-table-mappings">
+    <h2>2. Target Table Mapping Sections</h2>
+
+    <!-- Customer Table -->
+    <h3>Target Table: CoreCompany.Customer</h3>
+    <p><strong>Business Purpose:</strong> Stores the top-level client account information, representing the legal entity that CoreCompany does business with.</p>
+    <p><strong>Grain:</strong> One row represents one distinct customer of CoreCompany.</p>
+    <p><strong>Table Type:</strong> Foundation / Master</p>
+    <p><strong>Keys:</strong></p>
+    <ul>
+        <li><strong>Primary Key:</strong> CustomerId (uniqueidentifier)</li>
+        <li><strong>Foreign Keys:</strong> CustomerTypeId, BusinessPartyId</li>
+        <li><strong>Unique Constraints:</strong> None specified in DDL, but CustomerNumber should be unique.</li>
+        <li><strong>Natural Key:</strong> CustomerNumber</li>
+        <li><strong>Crosswalk Required:</strong> Yes</li>
+    </ul>
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr><th>Source Table</th><th>Filter Criteria</th><th>Reason</th><th>Confidence</th></tr>
+        <tr><td>AcquiredCompany.CUSTOMER</td><td>SELECT DISTINCT CUSTOMER, CUSTOMER_NAME...</td><td>This table contains the highest-level customer information. We assume one source `CUSTOMER` record corresponds to one target `Customer`.</td><td>Medium</td></tr>
+    </table>
+    <h4>Field-Level Mapping</h4>
+    <table>
+        <tr><th>Target Column</th><th>Source Table</th><th>Source Column(s)</th><th>Mapping Type</th><th>Transformation Rule</th><th>Confidence</th><th>Validation SQL</th><th>Notes</th></tr>
+        <tr><td>CustomerId</td><td>N/A</td><td>N/A</td><td>Generated</td><td>NEWID()</td><td>High</td><td>`SELECT COUNT(*) FROM CoreCompany.Customer WHERE CustomerId IS NULL;`</td><td>Managed via Migration_Key_Map.</td></tr>
+        <tr><td>CustomerName</td><td>CUSTOMER</td><td>CUSTOMER_NAME</td><td>Direct</td><td>TRIM(CUSTOMER_NAME)</td><td>High</td><td></td><td></td></tr>
+        <tr><td>CustomerTypeId</td><td>N/A</td><td>N/A</td><td>Static - SME Required</td><td>'Default_Customer_Type_GUID'</td><td>SME Required</td><td></td><td class="blocking">Needs a default value or mapping from a source field.</td></tr>
+        <tr><td>OfficeCode</td><td>N/A</td><td>N/A</td><td>Static - SME Required</td><td>'Default_Office_Code'</td><td>SME Required</td><td></td><td class="blocking">Needs a default value.</td></tr>
+        <tr><td>IsActive</td><td>N/A</td><td>N/A</td><td>Static</td><td>1</td><td>Medium</td><td></td><td>Assumption is all migrated customers are active.</td></tr>
+        <tr><td>CreatedBy</td><td>N/A</td><td>N/A</td><td>Audit</td><td>'Migration_User_GUID'</td><td>High</td><td></td><td></td></tr>
+        <tr><td>CreatedDate</td><td>N/A</td><td>N/A</td><td>Audit</td><td>GETUTCDATE()</td><td>High</td><td></td><td></td></tr>
+        <tr><td>CustomerNumber</td><td>CUSTOMER</td><td>CUSTOMER</td><td>Direct</td><td>TRIM(CUSTOMER)</td><td>High</td><td></td><td>This is the source natural key.</td></tr>
+        <tr><td>TIN</td><td>CUSTOMER</td><td>FEDERAL_ID</td><td>Direct</td><td>TRIM(FEDERAL_ID)</td><td>High</td><td></td><td>Potential PII.</td></tr>
+    </table>
+
+    <!-- Entity Table -->
+    <h3>Target Table: CoreCompany.Entity</h3>
+    <p><strong>Business Purpose:</strong> Represents a specific operational or legal sub-unit under a Customer or Enterprise. This could be a fund, a department, or a subsidiary.</p>
+    <p><strong>Grain:</strong> One row represents one distinct business entity.</p>
+    <p><strong>Table Type:</strong> Foundation / Master</p>
+    <p><strong>Keys:</strong></p>
+    <ul>
+        <li><strong>Primary Key:</strong> Id (uniqueidentifier)</li>
+        <li><strong>Foreign Keys:</strong> EnterpriseId, CustomerId, EntityTypeId, etc.</li>
+        <li><strong>Unique Constraints:</strong> (EntityNumber, CustomerId)</li>
+        <li><strong>Natural Key:</strong> EntityNumber</li>
+        <li><strong>Crosswalk Required:</strong> Yes</li>
+    </ul>
+    <h4>Source Selection Criteria</h4>
+    <table>
+        <tr><th>Source Table</th><th>Filter Criteria</th><th>Reason</th><th>Confidence</th></tr>
+        <tr><td>AcquiredCompany.CUSTOMER</td><td>All rows</td><td>The composite key (CUSTOMER, CLIENT_GROUP) suggests that this table defines entities. Each unique combination is a candidate for a target Entity.</td><td>Medium</td></tr>
+    </table>
+    <h4>Field-Level Mapping</h4>
+    <table>
+        <tr><th>Target Column</th><th>Source Table</th><th>Source Column(s)</th><th>Mapping Type</th><th>Transformation Rule</th><th>Confidence</th><th>Validation SQL</th><th>Notes</th></tr>
+        <tr><td>Id</td><td>N/A</td><td>N/A</td><td>Generated</td><td>NEWID()</td><td>High</td><td></td><td>Managed via Migration_Key_Map.</td></tr>
+        <tr><td>EntityNumber</td><td>CUSTOMER</td><td>CUSTOMER + '-' + CLIENT_GROUP</td><td>Derived</td><td>TRIM(CUSTOMER) + '-' + TRIM(CLIENT_GROUP)</td><td>Medium</td><td></td><td>Creates a unique natural key.</td></tr>
+        <tr><td>CustomerId</td><td>CUSTOMER</td><td>CUSTOMER</td><td>Lookup</td><td>`SELECT TargetId FROM Migration_Key_Map WHERE SourceTable = 'CUSTOMER' AND SourceNaturalKey = CUSTOMER`</td><td>High</td><td></td><td>Requires crosswalk resolution.</td></tr>
+        <tr><td>EntityName</td><td>CUSTOMER</td><td>CUSTOMER_NAME, CLIENT_GROUP_DESCRIPTION</td><td>Derived</td><td>`TRIM(CUSTOMER_NAME) + ' - ' + TRIM(CLIENT_GROUP_DESCRIPTION)`</td><td>Medium</td><td></td><td>Assumes concatenation is desired.</td></tr>
+        <tr><td>IsActive</td><td>N/A</td><td>N/A</td><td>Static</td><td>1</td><td>Medium</td><td></td><td></td></tr>
+        <tr><td>EntityAddress</td><td>CUSTOMER</td><td>CUSTOMER_ADDR, CUSTOMER_ADDR2, CUSTOMER_CITY, CUSTOMER_STATE, CUSTOMER_ZIP</td><td>SME Required</td><td>TBD</td><td>SME Required</td><td></td><td class="blocking">Logic for address concatenation needs SME approval.</td></tr>
+        <tr><td>SSN</td><td>CUSTOMER</td><td>SSN</td><td>Direct</td><td>TRIM(SSN)</td><td>High</td><td></td><td>PII data. Requires masking/encryption assessment.</td></tr>
+        <tr><td>EIN</td><td>CUSTOMER</td><td>FEDERAL_ID</td><td>Direct</td><td>TRIM(FEDERAL_ID)</td><td>High</td><td></td><td>PII data.</td></tr>
+        <tr><td>CreatedBy</td><td>N/A</td><td>N/A</td><td>Audit</td><td>'Migration_User_GUID'</td><td>High</td><td></td><td></td></tr>
+        <tr><td>CreatedDate</td><td>CUSTOMER</td><td>CHANGED</td><td>Direct</td><td>COALESCE(CHANGED, GETUTCDATE())</td><td>Medium</td><td></td><td>Source `CHANGED` date can be used if available.</td></tr>
+    </table>
+</section>
+
+<section id="transformation-rules">
+    <h2>3. Transformation Rules Library</h2>
+    <ul>
+        <li><strong>String Trimming:</strong> `TRIM(source_column)` must be applied to all `char` source fields.</li>
+        <li><strong>Surrogate Key Generation:</strong> `NEWID()` for `uniqueidentifier` fields.</li>
+        <li><strong>Lookup Resolution:</strong> All FKs must be resolved using the `Migration_Key_Map` table. `SELECT TargetId FROM Migration_Key_Map WHERE SourceSystem = 'AcquiredCompany' AND SourceTable = '...' AND SourceNaturalKey = '...'`.</li>
+        <li><strong>Audit Field Defaults:</strong> `CreatedBy` set to a static migration user ID. `CreatedDate` set to `GETUTCDATE()`.</li>
+    </ul>
+</section>
+
+<section id="crosswalk-plan">
+    <h2>4. Crosswalk and Key Management Plan</h2>
+    <p>A central crosswalk table is mandatory for this migration to handle the shift from composite natural keys to surrogate `uniqueidentifier` keys.</p>
+    <h4>Crosswalk Table Design</h4>
+    <pre>
+    CREATE TABLE Migration_Key_Map (
+        SourceSystem VARCHAR(50) NOT NULL,
+        SourceTable VARCHAR(100) NOT NULL,
+        SourceNaturalKey VARCHAR(255) NOT NULL,
+        SourceContext VARCHAR(100) NULL,
+        TargetTable VARCHAR(100) NOT NULL,
+        TargetId UNIQUEIDENTIFIER NOT NULL,
+        LoadBatchId INT NOT NULL,
+        CreatedDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        PRIMARY KEY (SourceSystem, SourceTable, SourceNaturalKey)
+    );
+    </pre>
+    <h4>Key Resolution Logic</h4>
+    <ol>
+        <li>For `CoreCompany.Customer`, the `SourceNaturalKey` will be the `CUSTOMER` value from `AcquiredCompany.CUSTOMER`.</li>
+        <li>For `CoreCompany.Entity`, the `SourceNaturalKey` will be a concatenation of `CUSTOMER` and `CLIENT_GROUP` (e.g., 'CUST123-A').</li>
+        <li>All foreign key columns in the target (e.g., `Entity.CustomerId`) will be populated by looking up the `TargetId` in this crosswalk table.</li>
+    </ol>
+</section>
+
+<section id="load-sequence">
+    <h2>5. Load Sequence and Dependency Plan</h2>
+    <table>
+        <tr><th>Load Group</th><th>Sequence</th><th>Target Table</th><th>Depends On</th><th>Load Type</th><th>Notes</th></tr>
+        <tr><td>0</td><td>1</td><td>CoreCompany.EntityType</td><td>-</td><td>Full Load</td><td>Reference data, must be loaded first.</td></tr>
+        <tr><td>1</td><td>2</td><td>Migration_Key_Map (for Customer)</td><td>-</td><td>Insert</td><td>Generate new UUIDs for Customers.</td></tr>
+        <tr><td>2</td><td>3</td><td>CoreCompany.Customer</td><td>Migration_Key_Map</td><td>Insert</td><td>Load main customer records.</td></tr>
+        <tr><td>3</td><td>4</td><td>Migration_Key_Map (for Entity)</td><td>-</td><td>Insert</td><td>Generate new UUIDs for Entities.</td></tr>
+        <tr><td>4</td><td>5</td><td>CoreCompany.Entity</td><td>Customer, Migration_Key_Map</td><td>Insert</td><td>Load entity records, resolving CustomerId via crosswalk.</td></tr>
+        <tr><td>10</td><td>6</td><td>CoreCompany.EntityHistory</td><td>Entity</td><td>Insert</td><td>Load historical/audit records post-migration.</td></tr>
+    </table>
+</section>
+
+<section id="validation-plan">
+    <h2>6. Validation and Reconciliation Plan</h2>
+    <table>
+        <tr><th>Validation Area</th><th>Table</th><th>Rule SQL</th><th>Severity</th></tr>
+        <tr><td>Row Count</td><td>Customer</td><td>`SELECT COUNT(DISTINCT CUSTOMER) FROM AcquiredCompany.CUSTOMER` vs `SELECT COUNT(*) FROM CoreCompany.Customer`</td><td>High</td></tr>
+        <tr><td>Row Count</td><td>Entity</td><td>`SELECT COUNT(*) FROM AcquiredCompany.CUSTOMER` vs `SELECT COUNT(*) FROM CoreCompany.Entity`</td><td>High</td></tr>
+        <tr><td>FK Integrity</td><td>Entity</td><td>`SELECT COUNT(*) FROM CoreCompany.Entity WHERE CustomerId NOT IN (SELECT CustomerId FROM CoreCompany.Customer)`</td><td>High</td></tr>
+        <tr><td>PII Check</td><td>Entity</td><td>`SELECT COUNT(*) FROM CoreCompany.Entity WHERE SSN IS NOT NULL`</td><td>Medium</td></tr>
+    </table>
+</section>
+
+<section id="compliance-report">
+    <h2>7. Compliance Report</h2>
+    <table>
+        <tr><th>Compliance Area</th><th>Field/Table</th><th>Risk</th><th>Control Required</th><th>Status</th></tr>
+        <tr><td>PII Data</td><td>Entity.SSN, Entity.EIN</td><td>High</td><td>Data masking in non-production environments. Encryption at rest. Field-level access control.</td><td>Pending</td></tr>
+        <tr><td>Data Lineage</td><td>All mapped fields</td><td>Medium</td><td>The `Migration_Key_Map` provides auditable lineage from source natural key to target surrogate key.</td><td>Complete</td></tr>
+    </table>
+</section>
+
+<section id="audit-log-design">
+    <h2>8. Audit Log Design</h2>
+    <pre>
+    CREATE TABLE Migration_Audit_Log (
+        BatchId INT IDENTITY(1,1) PRIMARY KEY,
+        SourceSystem VARCHAR(50),
+        SourceTable VARCHAR(100),
+        TargetTable VARCHAR(100),
+        LoadGroup INT,
+        RecordsRead BIGINT,
+        RecordsInserted BIGINT,
+        RecordsUpdated BIGINT,
+        RecordsRejected BIGINT,
+        StartTime DATETIME,
+        EndTime DATETIME,
+        Status VARCHAR(20),
+        ErrorMessage NVARCHAR(MAX)
+    );
+    </pre>
+</section>
+
+<section id="reject-strategy">
+    <h2>9. Error Handling and Reject Strategy</h2>
+    <pre>
+    CREATE TABLE Migration_Reject_Log (
+        RejectId BIGINT IDENTITY(1,1) PRIMARY KEY,
+        BatchId INT,
+        SourceSystem VARCHAR(50),
+        SourceTable VARCHAR(100),
+        SourceNaturalKey VARCHAR(255),
+        TargetTable VARCHAR(100),
+        TargetColumn VARCHAR(100),
+        ErrorType VARCHAR(50),
+        ErrorMessage NVARCHAR(MAX),
+        SourceValue NVARCHAR(MAX),
+        CreatedDate DATETIME DEFAULT GETUTCDATE()
+    );
+    </pre>
+    <p><strong>Strategy:</strong> Any record that fails validation (e.g., FK lookup failure, data type conversion error) will NOT be loaded. Instead, it will be inserted into the `Migration_Reject_Log` for manual review. The migration batch will continue, but a summary of rejects will be presented at the end.</p>
+</section>
+
+<section id="execution-guide">
+    <h2>10. Migration Execution Guide</h2>
+    <ol>
+        <li><strong>Pre-migration:</strong> Populate `CoreCompany.EntityType` and other reference tables.</li>
+        <li><strong>Step 1:</strong> Run script to populate `Migration_Key_Map` for `Customer` table.</li>
+        <li><strong>Step 2:</strong> Run ETL job to load `CoreCompany.Customer`.</li>
+        <li><strong>Step 3:</strong> Run script to populate `Migration_Key_Map` for `Entity` table.</li>
+        <li><strong>Step 4:</strong> Run ETL job to load `CoreCompany.Entity`.</li>
+        <li><strong>Step 5:</strong> Run validation SQL from the Validation Plan.</li>
+        <li><strong>Step 6:</strong> Review `Migration_Reject_Log` and `Migration_Audit_Log`.</li>
+        <li><strong>Step 7:</strong> Obtain business sign-off.</li>
+    </ol>
+</section>
+
+<section id="sme-tracker">
+    <h2>11. SME Decision Tracker</h2>
+    <table>
+        <tr><th>Area</th><th>Table</th><th>Field</th><th>Issue</th><th>Impact</th><th class="blocking">Blocking?</th><th>Owner</th><th>Decision Needed</th></tr>
+        <tr><td>Mapping</td><td>Customer</td><td>CustomerTypeId</td><td>No source field identified for customer type.</td><td>Cannot load Customer table without a default or mapping.</td><td class="blocking">Yes</td><td>Business Analyst</td><td>Provide a default CustomerTypeId or a business rule to derive it.</td></tr>
+        <tr><td>Mapping</td><td>Entity</td><td>EntityAddress</td><td>Source has multiple address fields; target has one.</td><td>Address data will be incomplete or poorly formatted.</td><td class="blocking">Yes</td><td>Data Steward</td><td>Define the concatenation logic for creating a complete address string.</td></tr>
+        <tr><td>Business Logic</td><td>CUSTOMER</td><td>CLIENT_GROUP</td><td>The business meaning of CLIENT_GROUP is unknown.</td><td>Incorrectly grouping or splitting entities, affecting financial reporting.</td><td class="blocking">Yes</td><td>Business Owner</td><td>Explain what CLIENT_GROUP represents. Is it a department, a region, or something else?</td></tr>
+    </table>
+</section>
+
+<section id="final-deliverables">
+    <h2>12. Final Deliverables</h2>
+    <ul>
+        <li>This Migration Mapping Document</li>
+        <li>Compliance Report</li>
+        <li>Migration Audit Log & Reject Table DDL</li>
+        <li>Load Sequence Plan</li>
+        <li>Validation SQL Pack</li>
+        <li>SME Decision Tracker</li>
+        <li>Migration Execution Guide</li>
+        <li>Crosswalk/Key Management Plan</li>
+    </ul>
+</section>
+
+</body>
+</html>
